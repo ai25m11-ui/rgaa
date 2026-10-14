@@ -1,0 +1,2990 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة تسعير خدمات الكتابة الأكاديمية</title>
+    <meta name="description" content="حاسبة تسعير احترافية لخدمات الكتابة والبحث الأكاديمي بالدينار العراقي">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #080b10;
+            --card-bg: rgba(14, 19, 32, 0.9);
+            --card-inner: rgba(8, 11, 20, 0.65);
+            --card-surface: rgba(18, 24, 42, 0.6);
+            --gold-primary: #c9a227;
+            --gold-bright: #e2b93b;
+            --gold-light: #f0d98a;
+            --gold-pale: #fdf5dc;
+            --gold-gradient: linear-gradient(135deg, #a67c00, #f5d66b, #9a6f00, #f5d66b, #c9a227);
+            --gold-gradient-2: linear-gradient(135deg, #c9a227, #f0d98a, #b8911e);
+            --gold-gradient-btn: linear-gradient(135deg, #d4af37 0%, #f5e27a 50%, #c9972a 100%);
+            --blue-accent: #1e3a5f;
+            --text-main: #f1f5f9;
+            --text-muted: #8fa3be;
+            --text-dim: #4e6380;
+            --border-color: rgba(201, 162, 39, 0.18);
+            --border-active: rgba(201, 162, 39, 0.55);
+            --input-bg: rgba(6, 9, 18, 0.75);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --shadow-xl: 0 30px 70px rgba(0,0,0,0.7);
+            --shadow-gold: 0 0 40px rgba(201,162,39,0.12);
+            --glow-sm: 0 0 12px rgba(201,162,39,0.3);
+            --r-xl: 24px;
+            --r-lg: 18px;
+            --r-md: 12px;
+            --r-sm: 8px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2.5rem 1rem 4rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 20% 0%, rgba(201,162,39,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(201,162,39,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 100% 80% at 50% 50%, rgba(10,16,35,0.8) 0%, transparent 100%);
+        }
+
+        /* ─── CANVAS BACKGROUND ─── */
+        #bgCanvas {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.4;
+        }
+
+        .wrapper { position: relative; z-index: 1; width: 100%; max-width: 1000px; }
+
+        /* ─── HEADER ─── */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: headerIn 0.9s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @keyframes headerIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.35rem 1rem; border-radius: 50px;
+            border: 1px solid var(--border-color);
+            background: rgba(201,162,39,0.06);
+            font-size: 0.78rem; color: var(--gold-light);
+            margin-bottom: 1.2rem; letter-spacing: 0.3px;
+        }
+
+        .badge-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--gold-bright); animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .page-header h1 {
+            font-size: 2.6rem; font-weight: 900; line-height: 1.2;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+
+        .header-sub {
+            margin-top: 0.6rem; font-size: 0.95rem; color: var(--text-muted);
+        }
+
+        .header-divider {
+            display: flex; align-items: center; gap: 0.8rem;
+            margin: 1.2rem auto; max-width: 300px;
+        }
+
+        .header-divider::before,
+        .header-divider::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(201,162,39,0.4), transparent);
+        }
+
+        .header-divider span { font-size: 1rem; }
+
+        /* ─── LAYOUT ─── */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+            align-items: start;
+            animation: layoutIn 1s cubic-bezier(0.16,1,0.3,1) 0.2s both;
+        }
+
+        @keyframes layoutIn {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 820px) {
+            .main-layout { grid-template-columns: 1fr; }
+            .page-header h1 { font-size: 1.9rem; }
+        }
+
+        /* ─── CARD ─── */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--r-xl);
+            box-shadow: var(--shadow-xl), var(--shadow-gold);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .glass-card::before {
+            content: ''; position: absolute; inset: 0; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent 5%, rgba(201,162,39,0.55) 50%, transparent 95%);
+            pointer-events: none;
+        }
+
+        .card-header-strip {
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, rgba(201,162,39,0.07) 0%, rgba(6,9,18,0) 100%);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; gap: 0.9rem;
+        }
+
+        .strip-icon {
+            width: 44px; height: 44px; border-radius: var(--r-md);
+            background: rgba(201,162,39,0.1); border: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .strip-title { font-size: 1.05rem; font-weight: 800; color: var(--gold-light); }
+        .strip-desc  { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+        .card-body { padding: 1.8rem 2rem; }
+
+        /* ─── FORM ─── */
+        .form-section { margin-bottom: 1.8rem; }
+        .form-section:last-child { margin-bottom: 0; }
+
+        .section-divider {
+            display: flex; align-items: center; gap: 0.7rem;
+            margin-bottom: 1.1rem;
+        }
+        .section-divider span {
+            font-size: 0.82rem; font-weight: 700; color: var(--gold-light);
+            white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .section-divider::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(90deg, rgba(201,162,39,0.3), transparent);
+        }
+
+        .form-group { margin-bottom: 1.1rem; }
+        .form-group:last-child { margin-bottom: 0; }
+
+        .form-group label {
+            display: flex; align-items: center; gap: 0.4rem;
+            font-size: 0.83rem; font-weight: 700; color: var(--gold-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group label .lbl-icon { font-size: 0.95rem; }
+        .req { color: var(--gold-bright); }
+
+        .input-wrap { position: relative; }
+        .input-unit {
+            position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+            font-size: 0.8rem; font-weight: 700; color: var(--gold-primary); pointer-events: none;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.82rem 1rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--r-md);
+            color: var(--text-main);
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.92rem;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 3px rgba(201,162,39,0.12), var(--glow-sm);
+        }
+
+        input::placeholder, textarea::placeholder { color: var(--text-dim); }
+
+        .input-wrap input[type="number"] { padding-left: 3.5rem; }
+
+        select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 4.5L11 1' stroke='%23c9a227' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 1rem center;
+            padding-left: 2.8rem;
+        }
+
+        select option { background: #0e1320; color: var(--text-main); }
+
+        textarea { resize: vertical; min-height: 90px; }
+
+        /* ─── SERVICE TYPE CARDS ─── */
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.65rem;
+        }
+
+        .service-radio { display: none; }
+
+        .service-label {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 0.4rem; padding: 0.9rem 0.6rem;
+            border-radius: var(--r-md); border: 1.5px solid var(--border-color);
+            background: var(--card-inner); cursor: pointer;
+            text-align: center; transition: all 0.22s ease;
+            font-size: 0.78rem; color: var(--text-muted);
+        }
+
+        .service-label .s-icon { font-size: 1.5rem; display: block; }
+        .service-label .s-price { font-size: 0.7rem; color: var(--text-dim); margin-top: 2px; }
+
+        .service-label:hover {
+            border-color: var(--gold-primary); color: var(--gold-light);
+            transform: translateY(-2px); box-shadow: 0 6px 18px rgba(201,162,39,0.1);
+        }
+
+        .service-radio:checked + .service-label {
+            border-color: var(--gold-bright);
+            background: rgba(201,162,39,0.09);
+            color: var(--gold-light);
+            box-shadow: 0 0 0 1px rgba(201,162,39,0.35), 0 6px 18px rgba(201,162,39,0.15);
+        }
+
+        /* ─── PAGE COUNT CONTROL ─── */
+        .page-control {
+            display: flex; align-items: center; gap: 0;
+            border: 1px solid var(--border-color); border-radius: var(--r-md);
+            overflow: hidden; background: var(--input-bg);
+        }
+
+        .page-btn {
+            width: 46px; height: 46px; border: none; background: transparent;
+            color: var(--gold-bright); font-size: 1.4rem; font-weight: 700;
+            cursor: pointer; transition: background 0.2s;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .page-btn:hover { background: rgba(201,162,39,0.1); }
+        .page-btn:active { background: rgba(201,162,39,0.2); }
+
+        #pageCount {
+            flex: 1; text-align: center; border: none; background: transparent;
+            font-size: 1.1rem; font-weight: 700; color: var(--text-main);
+            -webkit-appearance: none; padding: 0;
+        }
+
+        /* ─── SPEED SELECTOR ─── */
+        .speed-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem;
+        }
+
+        .speed-radio { display: none; }
+
+        .speed-label {
+            display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+            padding: 0.75rem 0.4rem; border-radius: var(--r-md);
+            border: 1.5px solid var(--border-color); background: var(--card-inner);
+            cursor: pointer; text-align: center; transition: all 0.2s;
+            font-size: 0.74rem; color: var(--text-muted);
+        }
+
+        .speed-label .sp-icon { font-size: 1.2rem; }
+        .speed-label .sp-pct { font-size: 0.68rem; color: var(--text-dim); }
+
+        .speed-label:hover { border-color: var(--gold-primary); color: var(--gold-light); }
+
+        .speed-radio:checked + .speed-label {
+            border-color: var(--gold-bright);
+            background: rgba(201,162,39,0.09);
+            color: var(--gold-light);
+            box-shadow: 0 0 0 1px rgba(201,162,39,0.3);
+        }
+
+        /* ─── ADDONS LIST ─── */
+        .addon-item {
+            display: flex; align-items: center;
+            padding: 0.9rem 1rem; border-radius: var(--r-md);
+            border: 1.5px solid var(--border-color);
+            background: var(--card-inner); cursor: pointer;
+            transition: all 0.22s; margin-bottom: 0.55rem;
+            position: relative; overflow: hidden;
+            user-select: none;
+        }
+
+        .addon-item:last-child { margin-bottom: 0; }
+
+        .addon-item::before {
+            content: ''; position: absolute; inset: 0; left: -100%;
+            background: linear-gradient(90deg, transparent, rgba(201,162,39,0.04), transparent);
+            transition: left 0.4s;
+        }
+
+        .addon-item:hover { border-color: var(--border-active); transform: translateX(-2px); }
+        .addon-item:hover::before { left: 100%; }
+        .addon-item.checked { border-color: var(--gold-bright); background: rgba(201,162,39,0.07); }
+
+        .addon-item input[type="checkbox"] { display: none; }
+
+        .addon-check {
+            width: 22px; height: 22px; border-radius: 6px;
+            border: 2px solid var(--border-active);
+            background: var(--input-bg); flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; color: transparent;
+            transition: all 0.2s; margin-left: 0.75rem;
+        }
+
+        .addon-item.checked .addon-check {
+            background: var(--gold-gradient-btn);
+            border-color: var(--gold-bright);
+            color: #000; font-weight: 900;
+        }
+
+        .addon-info { flex: 1; }
+        .addon-name { font-size: 0.87rem; font-weight: 700; color: var(--text-main); }
+        .addon-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 1px; }
+
+        .addon-price {
+            font-size: 0.82rem; font-weight: 800;
+            color: var(--gold-bright); white-space: nowrap;
+            background: rgba(201,162,39,0.08);
+            padding: 3px 9px; border-radius: 20px;
+            border: 1px solid rgba(201,162,39,0.2);
+        }
+
+        /* ─── NOTES ─── */
+        .form-hint {
+            font-size: 0.75rem; color: var(--text-dim); margin-top: 0.4rem;
+            display: flex; align-items: center; gap: 0.3rem;
+        }
+
+        /* ─── SUMMARY CARD ─── */
+        .summary-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--r-xl);
+            box-shadow: var(--shadow-xl), var(--shadow-gold);
+            position: sticky; top: 1.5rem;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: ''; position: absolute; inset: 0; top: 0; height: 1px;
+            background: linear-gradient(90deg, transparent 5%, rgba(201,162,39,0.55) 50%, transparent 95%);
+        }
+
+        .summary-top {
+            padding: 1.5rem 1.8rem;
+            background: linear-gradient(180deg, rgba(201,162,39,0.08) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .summary-top-label {
+            font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.4rem; letter-spacing: 0.4px;
+        }
+
+        .summary-total-display {
+            font-size: 3rem; font-weight: 900; line-height: 1;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .summary-currency { font-size: 1.3rem; font-weight: 700; }
+
+        .summary-body { padding: 1.4rem 1.8rem; }
+
+        .summary-title {
+            font-size: 0.8rem; font-weight: 700; color: var(--gold-light);
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .summary-title::after { content: ''; flex: 1; height: 1px; background: var(--border-color); }
+
+        .summary-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.6rem 0; border-bottom: 1px solid rgba(201,162,39,0.07);
+            font-size: 0.85rem;
+        }
+
+        .summary-row:last-child { border-bottom: none; }
+
+        .summary-row .row-label { color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem; }
+        .summary-row .row-value { font-weight: 700; color: var(--text-main); }
+        .summary-row .row-value.zero { color: var(--text-dim); }
+        .summary-row .row-value.positive { color: var(--gold-bright); }
+
+        .summary-total-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem; margin-top: 0.8rem;
+            border-radius: var(--r-md);
+            background: rgba(201,162,39,0.08);
+            border: 1.5px solid rgba(201,162,39,0.25);
+        }
+
+        .total-label { font-size: 0.95rem; font-weight: 800; color: var(--gold-light); }
+        .total-value {
+            font-size: 1.15rem; font-weight: 900;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+
+        .summary-footer { padding: 1.4rem 1.8rem; border-top: 1px solid var(--border-color); }
+
+        .btn-print {
+            width: 100%; padding: 0.9rem;
+            background: var(--gold-gradient-btn);
+            color: #000; font-family: 'Cairo', sans-serif;
+            font-size: 0.95rem; font-weight: 800;
+            border: none; border-radius: var(--r-md);
+            cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+            box-shadow: 0 4px 20px rgba(201,162,39,0.3);
+        }
+
+        .btn-print:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(201,162,39,0.45); }
+        .btn-print:active { transform: translateY(0); }
+
+        .btn-copy {
+            width: 100%; padding: 0.75rem;
+            background: transparent; border: 1.5px solid var(--border-color);
+            color: var(--text-muted); font-family: 'Cairo', sans-serif;
+            font-size: 0.87rem; font-weight: 600;
+            border-radius: var(--r-md); cursor: pointer; transition: all 0.25s;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            margin-top: 0.6rem;
+        }
+
+        .btn-copy:hover { border-color: var(--gold-primary); color: var(--gold-light); }
+
+        /* ─── BREAKDOWN BADGE ─── */
+        .breakdown-tag {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            padding: 0.25rem 0.65rem; border-radius: 50px;
+            background: rgba(201,162,39,0.08); border: 1px solid rgba(201,162,39,0.2);
+            font-size: 0.72rem; color: var(--gold-light); margin: 0.2rem;
+        }
+
+        .breakdown-tags { flex-wrap: wrap; display: flex; margin-top: 0.5rem; }
+
+        /* ─── PAYMENT & DEPOSIT BOX IN SUMMARY ─── */
+        .payment-box {
+            margin-top: 1rem;
+            padding: 0.9rem;
+            background: rgba(8, 11, 22, 0.65);
+            border: 1px solid rgba(201, 162, 39, 0.22);
+            border-radius: var(--r-md);
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+        .payment-box-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--gold-light);
+        }
+        .quick-pay-tags {
+            display: flex;
+            gap: 0.35rem;
+        }
+        .pay-tag {
+            font-size: 0.68rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(201, 162, 39, 0.1);
+            border: 1px solid rgba(201, 162, 39, 0.25);
+            color: var(--gold-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .pay-tag:hover {
+            background: rgba(201, 162, 39, 0.25);
+            border-color: var(--gold-bright);
+        }
+        .payment-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+        .pay-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .pay-input-wrap input {
+            width: 110px;
+            padding: 0.35rem 0.6rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: #4ade80;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-align: left;
+            direction: ltr;
+            outline: none;
+            font-family: inherit;
+        }
+        .pay-input-wrap input:focus {
+            border-color: var(--gold-bright);
+        }
+        .payment-row.remaining {
+            padding-top: 0.4rem;
+            border-top: 1px dashed rgba(255, 255, 255, 0.08);
+            font-weight: 700;
+        }
+        .remaining-val {
+            color: #f59e0b;
+            font-size: 0.92rem;
+        }
+
+        /* ─── PROFESSIONAL INVOICE MODAL & SHEET ─── */
+        .invoice-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 5, 10, 0.92);
+            backdrop-filter: blur(14px);
+            z-index: 1500;
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 1.5rem 1rem;
+            overflow-y: auto;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .invoice-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        .invoice-modal-container {
+            width: 100%;
+            max-width: 840px;
+            margin: auto;
+            animation: modalIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .invoice-modal-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem 1.4rem;
+            background: rgba(16, 22, 38, 0.95);
+            border: 1px solid var(--border-active);
+            border-radius: var(--r-md);
+            margin-bottom: 1rem;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .invoice-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .btn-invoice-print {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.3rem;
+            background: var(--gold-gradient-btn);
+            color: #1a1500;
+            border: none;
+            border-radius: var(--r-sm);
+            font-weight: 800;
+            font-size: 0.88rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(201, 162, 39, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+        .btn-invoice-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(201, 162, 39, 0.5);
+        }
+
+        /* ─── INVOICE SHEET (A4 Luxury Letterhead) ─── */
+        .invoice-sheet {
+            background: #ffffff;
+            color: #1e293b;
+            border-radius: 8px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.45);
+            padding: 2.8rem 2.8rem;
+            font-family: 'Cairo', sans-serif;
+            position: relative;
+            overflow: hidden;
+            text-align: right;
+            direction: rtl;
+        }
+        .invoice-sheet::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #bf953f, #fcf6ba, #b38728, #aa771c);
+        }
+
+        .inv-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 1.6rem;
+            border-bottom: 2px solid #f1f5f9;
+            margin-bottom: 1.6rem;
+            gap: 1rem;
+        }
+        .inv-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+        .inv-brand-title {
+            font-size: 1.45rem;
+            font-weight: 900;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .inv-brand-sub {
+            font-size: 0.82rem;
+            color: #64748b;
+        }
+        .inv-brand-contact {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-top: 0.2rem;
+        }
+
+        .inv-meta-card {
+            text-align: left;
+            direction: ltr;
+        }
+        .inv-tag {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #a17812;
+            letter-spacing: 1px;
+            margin-bottom: 0.4rem;
+        }
+        .inv-meta-line {
+            font-size: 0.82rem;
+            color: #475569;
+            margin-bottom: 0.2rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            direction: rtl;
+        }
+        .inv-meta-line strong {
+            color: #0f172a;
+        }
+        .inv-status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            margin-top: 0.4rem;
+        }
+        .inv-status-paid { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .inv-status-partial { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .inv-status-unpaid { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+        /* Client & Project Info Row */
+        .inv-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.1rem 1.3rem;
+            margin-bottom: 1.6rem;
+        }
+        .inv-info-block h4 {
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+            margin-bottom: 0.35rem;
+        }
+        .inv-info-block .main-text {
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .inv-info-block .sub-text {
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-top: 0.15rem;
+        }
+
+        /* Items Table */
+        .inv-table-wrap {
+            margin-bottom: 1.6rem;
+            overflow-x: auto;
+        }
+        .inv-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 0.86rem;
+        }
+        .inv-table th {
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 0.7rem 0.9rem;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+        .inv-table th:first-child { border-top-right-radius: 6px; }
+        .inv-table th:last-child { border-top-left-radius: 6px; text-align: left; }
+        .inv-table td {
+            padding: 0.75rem 0.9rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+        }
+        .inv-table td:last-child {
+            text-align: left;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .inv-table tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        .inv-item-desc {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.1rem;
+        }
+
+        /* Financial Summary Box */
+        .inv-finance-layout {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1.8rem;
+            margin-bottom: 1.8rem;
+        }
+        .inv-terms-box {
+            flex: 1;
+            font-size: 0.76rem;
+            color: #64748b;
+            line-height: 1.6;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 6px;
+            padding: 0.9rem;
+        }
+        .inv-terms-box strong { color: #0f172a; }
+        .inv-totals-table {
+            width: 320px;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+        }
+        .inv-totals-table td {
+            padding: 0.45rem 0.6rem;
+            color: #475569;
+        }
+        .inv-totals-table td:last-child {
+            text-align: left;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .inv-totals-table tr.grand-total {
+            border-top: 2px solid #0f172a;
+            border-bottom: 2px solid #0f172a;
+            font-size: 1.02rem;
+        }
+        .inv-totals-table tr.grand-total td {
+            color: #a17812;
+            font-weight: 900;
+            padding: 0.65rem 0.6rem;
+        }
+        .inv-totals-table tr.paid-row td {
+            color: #15803d;
+            font-weight: 700;
+        }
+        .inv-totals-table tr.remain-row td {
+            color: #b45309;
+            font-weight: 800;
+            font-size: 0.95rem;
+        }
+
+        /* Footer & Stamp */
+        .inv-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 1.4rem;
+            font-size: 0.76rem;
+            color: #94a3b8;
+        }
+        .inv-stamp-box {
+            text-align: center;
+            width: 150px;
+        }
+        .inv-stamp-circle {
+            width: 75px;
+            height: 75px;
+            margin: 0 auto 0.35rem;
+            border: 2px dashed #a17812;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a17812;
+            font-weight: 800;
+            font-size: 0.68rem;
+            transform: rotate(-8deg);
+        }
+
+        /* ─── NATIVE PRINT & SAVE AS PDF STYLES ─── */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            /* Hide EVERYTHING except invoiceSheet */
+            #bgCanvas, .wrapper, .admin-secret-trigger, .admin-overlay, .admin-toast, .invoice-modal-bar {
+                display: none !important;
+            }
+            .invoice-overlay {
+                position: static !important;
+                display: block !important;
+                background: transparent !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                backdrop-filter: none !important;
+                opacity: 1 !important;
+            }
+            .invoice-modal-container {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .invoice-sheet {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                padding: 10mm 12mm !important;
+                width: 100% !important;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 8mm;
+            }
+        }
+
+        /* ─── ANIMATIONS ─── */
+        @keyframes slideLeft {
+            from { opacity: 0; transform: translateX(20px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        .number-flash { animation: numFlash 0.3s ease; }
+        @keyframes numFlash {
+            0%   { opacity: 0.4; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 580px) {
+            .speed-grid { grid-template-columns: repeat(2, 1fr); }
+            .service-grid { grid-template-columns: repeat(2, 1fr); }
+            .card-body { padding: 1.2rem; }
+            .summary-total-display { font-size: 2.2rem; }
+        }
+
+        /* ─── INVISIBLE SECRET TRIGGER (مخفي تماماً عن المستخدمين) ─── */
+        .admin-secret-trigger {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 35px;
+            height: 35px;
+            z-index: 99;
+            opacity: 0;
+            background: transparent;
+            border: none;
+            cursor: default;
+            outline: none;
+        }
+
+        /* ─── ADMIN MODAL & DRAWER ─── */
+        .admin-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 7, 12, 0.88);
+            backdrop-filter: blur(14px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .admin-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .admin-modal-card {
+            background: linear-gradient(145deg, rgba(16, 22, 38, 0.98), rgba(9, 12, 22, 0.99));
+            border: 1px solid var(--border-active);
+            border-radius: var(--r-xl);
+            width: 100%;
+            max-width: 680px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.85), 0 0 60px rgba(201, 162, 39, 0.15);
+            position: relative;
+            animation: adminModalIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+            color: var(--text-main);
+        }
+        @keyframes adminModalIn {
+            from { opacity: 0; transform: scale(0.92) translateY(20px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Password Auth Box */
+        .admin-auth-box {
+            padding: 2.8rem 2.2rem;
+            text-align: center;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+        .admin-auth-icon {
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 1.4rem;
+            background: rgba(201, 162, 39, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--gold-bright);
+            box-shadow: var(--glow-sm);
+        }
+        .admin-auth-box h3 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--gold-light);
+        }
+        .admin-auth-box p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1.8rem;
+            line-height: 1.6;
+        }
+        .admin-password-wrap {
+            position: relative;
+            margin-bottom: 1.2rem;
+        }
+        .admin-password-wrap input {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            padding-left: 2.8rem;
+            background: var(--input-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--r-md);
+            color: var(--text-main);
+            font-size: 1.1rem;
+            text-align: center;
+            letter-spacing: 2px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .admin-password-wrap input:focus {
+            border-color: var(--gold-bright);
+            box-shadow: 0 0 15px rgba(201, 162, 39, 0.25);
+        }
+        .pwd-eye-btn {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        .admin-auth-error {
+            color: #ef4444;
+            font-size: 0.82rem;
+            margin-bottom: 1rem;
+            min-height: 1.2em;
+            font-weight: 600;
+        }
+        .shake-anim {
+            animation: shake 0.4s ease;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        /* Admin Dashboard Styles */
+        .admin-dash-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.4rem 1.8rem;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(201, 162, 39, 0.04);
+        }
+        .admin-dash-title {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .admin-dash-title h2 {
+            font-size: 1.25rem;
+            color: var(--gold-bright);
+            font-weight: 800;
+        }
+        .admin-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0.2rem 0.65rem;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+        }
+        .admin-close-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .admin-close-btn:hover {
+            color: #fff;
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+        }
+
+        .admin-dash-tabs {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.8rem 1.8rem 0;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(8, 11, 20, 0.5);
+            overflow-x: auto;
+        }
+        .admin-tab-btn {
+            padding: 0.65rem 1rem;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-muted);
+            font-size: 0.86rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+        .admin-tab-btn.active {
+            color: var(--gold-light);
+            border-bottom-color: var(--gold-bright);
+            background: rgba(201, 162, 39, 0.05);
+        }
+        .admin-tab-content {
+            padding: 1.5rem 1.8rem;
+        }
+        .admin-tab-pane {
+            display: none;
+        }
+        .admin-tab-pane.active {
+            display: block;
+        }
+
+        /* Price Grid */
+        .admin-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 0.9rem;
+        }
+        .admin-field-card {
+            background: rgba(8, 11, 20, 0.65);
+            border: 1px solid rgba(201, 162, 39, 0.15);
+            border-radius: var(--r-md);
+            padding: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            transition: border-color 0.2s;
+        }
+        .admin-field-card:hover {
+            border-color: rgba(201, 162, 39, 0.35);
+        }
+        .admin-field-label {
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .admin-field-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .admin-field-input-wrap input {
+            flex: 1;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--r-sm);
+            color: var(--gold-pale);
+            padding: 0.5rem 0.8rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: inherit;
+            text-align: left;
+            direction: ltr;
+        }
+        .admin-field-input-wrap input:focus {
+            border-color: var(--gold-bright);
+            outline: none;
+        }
+        .admin-unit {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            white-space: nowrap;
+        }
+
+        /* Admin Footer Buttons */
+        .admin-dash-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 1.8rem;
+            border-top: 1px solid var(--border-color);
+            background: rgba(8, 11, 20, 0.4);
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .btn-gold-save {
+            padding: 0.65rem 1.4rem;
+            background: var(--gold-gradient-btn);
+            color: #1a1500;
+            border: none;
+            border-radius: var(--r-sm);
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(201, 162, 39, 0.25);
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+        .btn-gold-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(201, 162, 39, 0.4);
+        }
+        .btn-ghost-reset {
+            padding: 0.65rem 1.1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-muted);
+            border-radius: var(--r-sm);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .btn-ghost-reset:hover {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .btn-logout {
+            padding: 0.65rem 1rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #f87171;
+            border-radius: var(--r-sm);
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fff;
+        }
+
+        /* ─── SECRET PROMO CODE FIELD IN CALCULATOR ─── */
+        .secret-promo-container {
+            margin-top: 1rem;
+            padding-top: 0.8rem;
+            border-top: 1px dashed rgba(201, 162, 39, 0.18);
+        }
+        .secret-promo-toggle {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: color 0.2s;
+            user-select: none;
+        }
+        .secret-promo-toggle:hover {
+            color: var(--gold-light);
+        }
+        .secret-promo-box {
+            display: none;
+            margin-top: 0.6rem;
+            gap: 0.5rem;
+        }
+        .secret-promo-box.open {
+            display: flex;
+        }
+        .secret-promo-box input {
+            flex: 1;
+            padding: 0.45rem 0.75rem;
+            font-size: 0.84rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--r-sm);
+            color: var(--gold-bright);
+            font-family: inherit;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .secret-promo-box button {
+            padding: 0.45rem 0.9rem;
+            background: var(--gold-gradient-btn);
+            border: none;
+            border-radius: var(--r-sm);
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #1a1500;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .secret-promo-applied {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 0.35rem 0.75rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 6px;
+            font-size: 0.78rem;
+            color: #4ade80;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Toast notification */
+        .admin-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 2000;
+            background: linear-gradient(135deg, rgba(20, 27, 45, 0.95), rgba(10, 14, 25, 0.98));
+            border: 1px solid var(--gold-bright);
+            color: var(--gold-pale);
+            padding: 0.8rem 1.4rem;
+            border-radius: var(--r-md);
+            font-size: 0.88rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(201, 162, 39, 0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+        .admin-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Animated background -->
+<canvas id="bgCanvas"></canvas>
+
+<!-- Invisible hidden trigger (مخفي تماماً) -->
+<button class="admin-secret-trigger" id="adminSecretTrigger" onclick="openAdminPortal()" tabindex="-1" aria-hidden="true"></button>
+
+<div class="wrapper">
+
+    <!-- ══ PAGE HEADER ══ -->
+    <header class="page-header">
+        <div class="badge" onclick="onBadgeClick()" style="cursor:default;">
+            <div class="badge-dot"></div>
+            خدمات الكتابة والبحث الأكاديمي
+        </div>
+        <h1>حاسبة تسعير الكتابة الأكاديمية</h1>
+        <div class="header-divider"><span onclick="openAdminPortal()" style="cursor:pointer;user-select:none;" title="">✦</span></div>
+        <p class="header-sub">احسب تكلفة بحثك أو مقالتك بدقة — بالدينار العراقي</p>
+    </header>
+
+    <!-- ══ MAIN LAYOUT ══ -->
+    <div class="main-layout">
+
+        <!-- ═══ LEFT: FORM CARD ═══ -->
+        <div class="glass-card">
+            <div class="card-header-strip">
+                <div class="strip-icon">📝</div>
+                <div>
+                    <div class="strip-title">تفاصيل الطلب</div>
+                    <div class="strip-desc">أدخل مواصفات العمل لاحتساب السعر الدقيق</div>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                <!-- ── SECTION 1: CLIENT ── -->
+                <div class="form-section">
+                    <div class="section-divider"><span>معلومات العميل</span></div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                        <div class="form-group">
+                            <label for="clientName"><span class="lbl-icon">👤</span> اسم العميل <span class="req">*</span></label>
+                            <input type="text" id="clientName" placeholder="مثال: أ. محمد علي" oninput="updateSummaryClient()">
+                        </div>
+                        <div class="form-group">
+                            <label for="clientPhone"><span class="lbl-icon">📱</span> رقم التواصل</label>
+                            <input type="text" id="clientPhone" placeholder="+964 7XX XXX XXXX">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectTitle"><span class="lbl-icon">🎓</span> عنوان البحث / الموضوع</label>
+                        <input type="text" id="projectTitle" placeholder="مثال: أثر الذكاء الاصطناعي على التعليم العالي">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientNotes"><span class="lbl-icon">💬</span> ملاحظات وتعليمات خاصة</label>
+                        <textarea id="clientNotes" placeholder="أي تفاصيل إضافية، أسلوب مطلوب، مصادر محددة..."></textarea>
+                    </div>
+                </div>
+
+                <!-- ── SECTION 2: SERVICE TYPE ── -->
+                <div class="form-section">
+                    <div class="section-divider"><span>نوع الخدمة</span></div>
+                    <div class="service-grid" id="serviceGrid">
+                        <input type="radio" name="serviceType" id="st-research" class="service-radio" value="5000" checked>
+                        <label for="st-research" class="service-label">
+                            <span class="s-icon">🔬</span>
+                            <span>بحث أكاديمي</span>
+                            <span class="s-price">5,000 د.ع / صفحة</span>
+                        </label>
+
+                        <input type="radio" name="serviceType" id="st-essay" class="service-radio" value="3500">
+                        <label for="st-essay" class="service-label">
+                            <span class="s-icon">✍️</span>
+                            <span>مقالة علمية</span>
+                            <span class="s-price">3,500 د.ع / صفحة</span>
+                        </label>
+
+                        <input type="radio" name="serviceType" id="st-thesis" class="service-radio" value="7000">
+                        <label for="st-thesis" class="service-label">
+                            <span class="s-icon">🎓</span>
+                            <span>رسالة ماجستير</span>
+                            <span class="s-price">7,000 د.ع / صفحة</span>
+                        </label>
+
+                        <input type="radio" name="serviceType" id="st-phd" class="service-radio" value="10000">
+                        <label for="st-phd" class="service-label">
+                            <span class="s-icon">📚</span>
+                            <span>أطروحة دكتوراه</span>
+                            <span class="s-price">10,000 د.ع / صفحة</span>
+                        </label>
+
+                        <input type="radio" name="serviceType" id="st-report" class="service-radio" value="4000">
+                        <label for="st-report" class="service-label">
+                            <span class="s-icon">📊</span>
+                            <span>تقرير دراسي</span>
+                            <span class="s-price">4,000 د.ع / صفحة</span>
+                        </label>
+
+                        <input type="radio" name="serviceType" id="st-summary" class="service-radio" value="2500">
+                        <label for="st-summary" class="service-label">
+                            <span class="s-icon">📋</span>
+                            <span>تلخيص وإعادة صياغة</span>
+                            <span class="s-price">2,500 د.ع / صفحة</span>
+                        </label>
+
+                        <input type="radio" name="serviceType" id="st-translate" class="service-radio" value="3000">
+                        <label for="st-translate" class="service-label">
+                            <span class="s-icon">🌐</span>
+                            <span>ترجمة أكاديمية</span>
+                            <span class="s-price">3,000 د.ع / صفحة</span>
+                        </label>
+
+                        <input type="radio" name="serviceType" id="st-proposal" class="service-radio" value="6000">
+                        <label for="st-proposal" class="service-label">
+                            <span class="s-icon">💡</span>
+                            <span>خطة بحثية</span>
+                            <span class="s-price">6,000 د.ع / صفحة</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ── SECTION 3: PAGES & SPEED ── -->
+                <div class="form-section">
+                    <div class="section-divider"><span>المواصفات</span></div>
+
+                    <div class="form-group">
+                        <label><span class="lbl-icon">📄</span> عدد الصفحات المطلوبة <span class="req">*</span></label>
+                        <div class="page-control">
+                            <button class="page-btn" type="button" onclick="changePage(-1)" aria-label="تقليل">−</button>
+                            <input type="number" id="pageCount" value="1" min="1" max="500" oninput="calculate()">
+                            <button class="page-btn" type="button" onclick="changePage(1)" aria-label="زيادة">+</button>
+                        </div>
+                        <div class="form-hint">ℹ️ الصفحة الواحدة = حوالي 250 كلمة أو 1500 حرف</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><span class="lbl-icon">⏱️</span> سرعة التسليم</label>
+                        <div class="speed-grid">
+                            <input type="radio" name="deliverySpeed" id="sp-normal" class="speed-radio" value="0" checked>
+                            <label for="sp-normal" class="speed-label">
+                                <span class="sp-icon">🐢</span>
+                                <span>عادي</span>
+                                <span class="sp-pct">+0%</span>
+                            </label>
+
+                            <input type="radio" name="deliverySpeed" id="sp-fast" class="speed-radio" value="0.2">
+                            <label for="sp-fast" class="speed-label">
+                                <span class="sp-icon">🚶</span>
+                                <span>أسبوع</span>
+                                <span class="sp-pct">+20%</span>
+                            </label>
+
+                            <input type="radio" name="deliverySpeed" id="sp-express" class="speed-radio" value="0.4">
+                            <label for="sp-express" class="speed-label">
+                                <span class="sp-icon">🚀</span>
+                                <span>3 أيام</span>
+                                <span class="sp-pct">+40%</span>
+                            </label>
+
+                            <input type="radio" name="deliverySpeed" id="sp-urgent" class="speed-radio" value="0.7">
+                            <label for="sp-urgent" class="speed-label">
+                                <span class="sp-icon">⚡</span>
+                                <span>24 ساعة</span>
+                                <span class="sp-pct">+70%</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── SECTION 4: ADDONS ── -->
+                <div class="form-section">
+                    <div class="section-divider"><span>خدمات إضافية اختيارية</span></div>
+
+                    <label class="addon-item" for="addReferences">
+                        <input type="checkbox" id="addReferences" value="2000">
+                        <div class="addon-check">✓</div>
+                        <div class="addon-info">
+                            <div class="addon-name">📚 إضافة المصادر والمراجع</div>
+                            <div class="addon-desc">توثيق APA / MLA / شيكاغو حسب الطلب</div>
+                        </div>
+                        <div class="addon-price">+2,000 د.ع</div>
+                    </label>
+
+                    <label class="addon-item" for="addProofreading">
+                        <input type="checkbox" id="addProofreading" value="3000">
+                        <div class="addon-check">✓</div>
+                        <div class="addon-info">
+                            <div class="addon-name">🔍 تدقيق لغوي وإملائي شامل</div>
+                            <div class="addon-desc">مراجعة كاملة للقواعد والأسلوب</div>
+                        </div>
+                        <div class="addon-price">+3,000 د.ع</div>
+                    </label>
+
+                    <label class="addon-item" for="addCoverDesign">
+                        <input type="checkbox" id="addCoverDesign" value="5000">
+                        <div class="addon-check">✓</div>
+                        <div class="addon-info">
+                            <div class="addon-name">🎨 تصميم غلاف احترافي مخصص</div>
+                            <div class="addon-desc">غلاف بصري فاخر يعكس موضوع البحث</div>
+                        </div>
+                        <div class="addon-price">+5,000 د.ع</div>
+                    </label>
+
+                    <label class="addon-item" for="addPlagiarism">
+                        <input type="checkbox" id="addPlagiarism" value="4000">
+                        <div class="addon-check">✓</div>
+                        <div class="addon-info">
+                            <div class="addon-name">🛡️ فحص الانتحال وتقرير التفرد</div>
+                            <div class="addon-desc">تقرير Turnitin أو Grammarly معتمد</div>
+                        </div>
+                        <div class="addon-price">+4,000 د.ع</div>
+                    </label>
+
+                    <label class="addon-item" for="addPresentation">
+                        <input type="checkbox" id="addPresentation" value="6000">
+                        <div class="addon-check">✓</div>
+                        <div class="addon-info">
+                            <div class="addon-name">📊 تصميم شرائح عرض PowerPoint</div>
+                            <div class="addon-desc">تلخيص البحث في عرض تقديمي مميز</div>
+                        </div>
+                        <div class="addon-price">+6,000 د.ع</div>
+                    </label>
+                </div>
+
+            </div><!-- /card-body -->
+        </div><!-- /glass-card -->
+
+        <!-- ═══ RIGHT: SUMMARY CARD ═══ -->
+        <div class="summary-card">
+
+            <div class="summary-top">
+                <div class="summary-top-label">الإجمالي المتوقع</div>
+                <div class="summary-total-display" id="heroTotal">
+                    <span id="heroAmount">0</span>
+                    <span class="summary-currency"> د.ع</span>
+                </div>
+                <div id="clientLabel" style="font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem;min-height:1.2em"></div>
+            </div>
+
+            <div class="summary-body">
+                <div class="summary-title">تفصيل الفاتورة</div>
+
+                <div class="summary-row">
+                    <span class="row-label">📝 نوع الخدمة</span>
+                    <span class="row-value" id="serviceDisplay">بحث أكاديمي</span>
+                </div>
+                <div class="summary-row">
+                    <span class="row-label">💰 سعر الصفحة</span>
+                    <span class="row-value" id="pricePerPageDisplay">5,000 د.ع</span>
+                </div>
+                <div class="summary-row">
+                    <span class="row-label">📄 عدد الصفحات</span>
+                    <span class="row-value" id="pagesDisplay">1</span>
+                </div>
+                <div class="summary-row">
+                    <span class="row-label">🔢 السعر الأساسي</span>
+                    <span class="row-value" id="basePriceDisplay">5,000 د.ع</span>
+                </div>
+                <div class="summary-row">
+                    <span class="row-label">⚡ رسوم الاستعجال</span>
+                    <span class="row-value zero" id="urgencyDisplay">—</span>
+                </div>
+                <div class="summary-row">
+                    <span class="row-label">⭐ إجمالي الإضافات</span>
+                    <span class="row-value zero" id="addonsDisplay">—</span>
+                </div>
+                <div class="summary-row" id="discountRow" style="display:none;">
+                    <span class="row-label">🏷️ خصم إداري خاص</span>
+                    <span class="row-value" id="discountDisplay" style="color:#4ade80;">—</span>
+                </div>
+
+                <div id="addonTagsContainer" class="breakdown-tags" style="margin-top:0.3rem;min-height:0"></div>
+
+                <div class="summary-total-row">
+                    <span class="total-label">
+                        <span onclick="togglePromoBox()" style="cursor:pointer;user-select:none;" title="">✦</span>
+                        المبلغ الإجمالي
+                    </span>
+                    <span class="total-value" id="totalDisplay">5,000 د.ع</span>
+                </div>
+
+                <div id="speedNote" style="margin-top:0.7rem;font-size:0.76rem;color:var(--text-dim);text-align:center;min-height:1.2em"></div>
+
+                <!-- ── PAYMENT & DEPOSIT BOX (المبلغ المدفوع والمتبقي) ── -->
+                <div class="payment-box">
+                    <div class="payment-box-title">
+                        <span>💳 الدفع والتسوية</span>
+                        <div class="quick-pay-tags">
+                            <span class="pay-tag" onclick="setQuickPaid(1)">100% مدفوع</span>
+                            <span class="pay-tag" onclick="setQuickPaid(0.5)">50% عربون</span>
+                            <span class="pay-tag" onclick="setQuickPaid(0)">0 لم يدفع</span>
+                        </div>
+                    </div>
+                    <div class="payment-row">
+                        <label for="paidAmountInput">المبلغ المدفوع:</label>
+                        <div class="pay-input-wrap">
+                            <input type="number" id="paidAmountInput" value="0" min="0" step="1000" oninput="updatePaidCalculation()">
+                            <span>د.ع</span>
+                        </div>
+                    </div>
+                    <div class="payment-row remaining">
+                        <span>المبلغ المتبقي:</span>
+                        <span id="remainingAmountDisplay" class="remaining-val">0 د.ع</span>
+                    </div>
+                </div>
+
+                <!-- ── SECRET PROMO CODE CONTAINER (مخفي يفتح فقط بالنقر على ✦) ── -->
+                <div class="secret-promo-container" style="border:none;margin-top:0.3rem;padding-top:0;">
+                    <div class="secret-promo-box" id="secretPromoBox">
+                        <input type="text" id="promoCodeInput" placeholder="أدخل الرمز السري..." autocomplete="off">
+                        <button type="button" onclick="applyPromoCode()">تطبيق</button>
+                    </div>
+                    <div class="secret-promo-applied" id="secretPromoApplied">
+                        <span id="promoAppliedText">✅ تم تفعيل الخصم بنجاح!</span>
+                        <span style="cursor:pointer;opacity:0.75;padding:2px 6px;" onclick="removePromoCode()" title="إلغاء الخصم">✕</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-footer">
+                <button class="btn-print" onclick="openInvoiceModal()">
+                    🧾 إصدار وحفظ الفاتورة (PDF / طباعة)
+                </button>
+                <button class="btn-copy" id="copyBtn" onclick="copyInvoice()">
+                    📋 نسخ ملخص الفاتورة
+                </button>
+            </div>
+        </div>
+
+    </div><!-- /main-layout -->
+
+</div><!-- /wrapper -->
+
+<!-- ═══ MODAL: PROFESSIONAL INVOICE (فاتورة رسمية A4 مع PDF وطباعة) ═══ -->
+<div class="invoice-overlay" id="invoiceOverlay" onclick="handleInvoiceOverlayClick(event)">
+    <div class="invoice-modal-container">
+        
+        <!-- Controls Bar -->
+        <div class="invoice-modal-bar">
+            <div style="display:flex;align-items:center;gap:0.7rem;">
+                <span style="font-size:1.3rem;">🧾</span>
+                <div>
+                    <div style="font-weight:800;color:var(--gold-bright);font-size:1.05rem;">معاينة الفاتورة الرسمية المعتمدة</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);">جاهزة للطباعة أو الحفظ المباشر كملف PDF عالي الدقة</div>
+                </div>
+            </div>
+            <div class="invoice-bar-actions">
+                <button type="button" class="btn-invoice-print" onclick="window.print()">
+                    🖨️ طباعة أو حفظ PDF
+                </button>
+                <button type="button" class="btn-ghost-reset" onclick="regenerateInvoiceId()" title="توليد رقم فاتورة جديد">
+                    🔄 رقم جديد
+                </button>
+                <button type="button" class="admin-close-btn" onclick="closeInvoiceModal()" title="إغلاق المعاينة">✕</button>
+            </div>
+        </div>
+
+        <!-- The Printable Invoice Sheet (A4 Letterhead) -->
+        <div class="invoice-sheet" id="invoiceSheet">
+            
+            <!-- Header -->
+            <div class="inv-header">
+                <div class="inv-brand">
+                    <div class="inv-brand-title">
+                        <span>🎓</span>
+                        <span>مؤسسة الأفق للكتابة والبحث الأكاديمي</span>
+                    </div>
+                    <div class="inv-brand-sub">خدمات إعداد البحوث ورسائل الدراسات العليا والتدقيق اللغوي والترجمة</div>
+                    <div class="inv-brand-contact">العراق - بغداد | هاتف: +964 770 000 0000 | البريد: info@alofouq-academic.iq</div>
+                </div>
+
+                <div class="inv-meta-card">
+                    <div class="inv-tag">فاتورة خدمات / INVOICE</div>
+                    <div class="inv-meta-line">
+                        <span>رقم الفاتورة:</span>
+                        <strong id="invNumberDisplay">INV-202610-0000</strong>
+                    </div>
+                    <div class="inv-meta-line">
+                        <span>تاريخ الإصدار:</span>
+                        <strong id="invDateDisplay">2026/10/13</strong>
+                    </div>
+                    <div class="inv-meta-line">
+                        <span>موعد التسليم:</span>
+                        <strong id="invDueDateDisplay">تسليم عادي</strong>
+                    </div>
+                    <div style="text-align:left;">
+                        <span id="invStatusBadge" class="inv-status-badge inv-status-unpaid">غير مدفوع</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Client & Project Details -->
+            <div class="inv-info-grid">
+                <div class="inv-info-block">
+                    <h4>فاتورة إلى (بيانات العميل)</h4>
+                    <div class="main-text" id="invClientName">عميل غير محدد</div>
+                    <div class="sub-text" id="invClientPhone">رقم التواصل: —</div>
+                </div>
+                <div class="inv-info-block">
+                    <h4>تفاصيل الموضوع / البحث</h4>
+                    <div class="main-text" id="invProjectTitle">مشروع بحث أكاديمي</div>
+                    <div class="sub-text" id="invProjectNotes">—</div>
+                </div>
+            </div>
+
+            <!-- Items Table -->
+            <div class="inv-table-wrap">
+                <table class="inv-table">
+                    <thead>
+                        <tr>
+                            <th style="width:35px;">#</th>
+                            <th>الخدمة / البند</th>
+                            <th>المواصفات والبيان</th>
+                            <th>سعر الوحدة</th>
+                            <th style="text-align:center;">الكمية</th>
+                            <th>المجموع</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invItemsTableBody">
+                        <!-- Populated dynamically via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Financial Summary & Notes -->
+            <div class="inv-finance-layout">
+                <div class="inv-terms-box">
+                    <strong>شروط وأحكام الخدمة الأكاديمية:</strong><br>
+                    • التعديلات والملاحظات الأكاديمية مشمولة مجاناً خلال 14 يوماً من الاستلام.<br>
+                    • يتم تسليم العمل بصيغتي Word و PDF مع تقرير الفحص والتوثيق المعتمد.<br>
+                    • تسري هذه الفاتورة كإشعار استلام رسمي وضمان لجودة العمل المنجز.
+                </div>
+
+                <table class="inv-totals-table">
+                    <tr>
+                        <td>السعر الأساسي:</td>
+                        <td id="invSubtotal">0 د.ع</td>
+                    </tr>
+                    <tr id="invUrgencyRow" style="display:none;">
+                        <td>رسوم الاستعجال:</td>
+                        <td id="invUrgency">0 د.ع</td>
+                    </tr>
+                    <tr id="invAddonsRow" style="display:none;">
+                        <td>إجمالي الخدمات الإضافية:</td>
+                        <td id="invAddons">0 د.ع</td>
+                    </tr>
+                    <tr id="invDiscountRow" style="display:none;color:#15803d;">
+                        <td>الخصم المطبق:</td>
+                        <td id="invDiscount">0 د.ع</td>
+                    </tr>
+                    <tr class="grand-total">
+                        <td>المبلغ الإجمالي المستحق:</td>
+                        <td id="invGrandTotal">0 د.ع</td>
+                    </tr>
+                    <tr class="paid-row">
+                        <td>المبلغ المدفوع:</td>
+                        <td id="invPaidAmount">0 د.ع</td>
+                    </tr>
+                    <tr class="remain-row">
+                        <td>المتبقي للسداد:</td>
+                        <td id="invRemainingAmount">0 د.ع</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Footer & Stamp -->
+            <div class="inv-footer">
+                <div>
+                    <div>شكراً لاختياركم مؤسسة الأفق الأكاديمية ✦</div>
+                    <div style="font-size:0.7rem;margin-top:0.2rem;">وثيقة إلكترونية رسمية صادرة بموجب النظام المحاسبي الآلي</div>
+                </div>
+                <div class="inv-stamp-box">
+                    <div class="inv-stamp-circle">
+                        <span>معتمد رسمياً<br>✓ مصادق</span>
+                    </div>
+                    <div>ختم وتوقيع الإدارة</div>
+                </div>
+            </div>
+
+        </div><!-- /invoiceSheet -->
+
+    </div><!-- /invoice-modal-container -->
+</div><!-- /invoiceOverlay -->
+
+<!-- ═══ MODAL: ADMIN ACCESS & PORTAL (خانة المدير المحمية) ═══ -->
+<div class="admin-overlay" id="adminOverlay" onclick="handleOverlayClick(event)">
+    <div class="admin-modal-card" id="adminModalCard">
+        
+        <!-- ── SCREEN 1: PASSWORD AUTH (تسجيل دخول المدير) ── -->
+        <div class="admin-auth-box" id="adminAuthBox">
+            <div class="admin-auth-icon">🔐</div>
+            <h3>وصول الإدارة</h3>
+            <p>أدخل رمز المرور السري للدخول إلى إعدادات التسعير</p>
+            
+            <div class="admin-password-wrap">
+                <input type="password" id="adminPasswordInput" placeholder="••••" maxlength="20" onkeydown="if(event.key==='Enter')verifyAdminPassword()">
+                <button type="button" class="pwd-eye-btn" onclick="togglePwdVisibility()" aria-label="إظهار الرمز">👁️</button>
+            </div>
+            <div class="admin-auth-error" id="adminAuthError"></div>
+
+            <div style="display:flex;gap:0.7rem;justify-content:center;">
+                <button type="button" class="btn-gold-save" style="padding:0.65rem 2.2rem;" onclick="verifyAdminPassword()">دخول 🔓</button>
+                <button type="button" class="btn-ghost-reset" onclick="closeAdminPortal()">إلغاء</button>
+            </div>
+        </div>
+
+        <!-- ── SCREEN 2: ADMIN DASHBOARD (خانة المدير الكاملة) ── -->
+        <div id="adminDashboardBox" style="display:none;">
+            <div class="admin-dash-header">
+                <div class="admin-dash-title">
+                    <span style="font-size:1.4rem;">👑</span>
+                    <div>
+                        <h2>خانة المدير - إدارة التسعير والرموز</h2>
+                        <div class="admin-status-pill">● متصل بصلاحيات المدير</div>
+                    </div>
+                </div>
+                <button type="button" class="admin-close-btn" onclick="closeAdminPortal()" title="إغلاق">✕</button>
+            </div>
+
+            <div class="admin-dash-tabs">
+                <button type="button" class="admin-tab-btn active" id="tabBtn-services" onclick="switchAdminTab('services')">📋 تسعير الخدمات</button>
+                <button type="button" class="admin-tab-btn" id="tabBtn-addons" onclick="switchAdminTab('addons')">✨ تسعير الإضافات</button>
+                <button type="button" class="admin-tab-btn" id="tabBtn-promo" onclick="switchAdminTab('promo')">🏷️ الكود السري والاستعجال</button>
+                <button type="button" class="admin-tab-btn" id="tabBtn-security" onclick="switchAdminTab('security')">🔒 كلمة المرور والأمان</button>
+            </div>
+
+            <div class="admin-tab-content">
+                <!-- TAB 1: SERVICES PRICING -->
+                <div class="admin-tab-pane active" id="tab-services">
+                    <p style="font-size:0.83rem;color:var(--text-muted);margin-bottom:1.2rem;">
+                        عدّل سعر الصفحة الواحدة لكل نوع خدمة بالدينار العراقي (د.ع):
+                    </p>
+                    <div class="admin-grid-2">
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">🔬 بحث أكاديمي</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-st-research" step="250" min="500">
+                                <span class="admin-unit">د.ع / صفحة</span>
+                            </div>
+                        </div>
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">✍️ مقالة علمية</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-st-essay" step="250" min="500">
+                                <span class="admin-unit">د.ع / صفحة</span>
+                            </div>
+                        </div>
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">🎓 رسالة ماجستير</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-st-thesis" step="500" min="1000">
+                                <span class="admin-unit">د.ع / صفحة</span>
+                            </div>
+                        </div>
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">📚 أطروحة دكتوراه</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-st-phd" step="500" min="1000">
+                                <span class="admin-unit">د.ع / صفحة</span>
+                            </div>
+                        </div>
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">📊 تقرير دراسي</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-st-report" step="250" min="500">
+                                <span class="admin-unit">د.ع / صفحة</span>
+                            </div>
+                        </div>
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">📋 تلخيص وإعادة صياغة</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-st-summary" step="250" min="500">
+                                <span class="admin-unit">د.ع / صفحة</span>
+                            </div>
+                        </div>
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">🌐 ترجمة أكاديمية</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-st-translate" step="250" min="500">
+                                <span class="admin-unit">د.ع / صفحة</span>
+                            </div>
+                        </div>
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">💡 خطة بحثية</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-st-proposal" step="500" min="1000">
+                                <span class="admin-unit">د.ع / صفحة</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: ADDONS PRICING -->
+                <div class="admin-tab-pane" id="tab-addons">
+                    <p style="font-size:0.83rem;color:var(--text-muted);margin-bottom:1.2rem;">
+                        عدّل تكلفة كل خدمة إضافية اختيارية بالدينار العراقي (د.ع):
+                    </p>
+                    <div class="admin-grid-2">
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">📚 إضافة المصادر والمراجع</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-addReferences" step="500" min="0">
+                                <span class="admin-unit">د.ع</span>
+                            </div>
+                        </div>
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">🔍 تدقيق لغوي وإملائي شامل</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-addProofreading" step="500" min="0">
+                                <span class="admin-unit">د.ع</span>
+                            </div>
+                        </div>
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">🎨 تصميم غلاف احترافي مخصص</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-addCoverDesign" step="500" min="0">
+                                <span class="admin-unit">د.ع</span>
+                            </div>
+                        </div>
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">🛡️ فحص الانتحال وتقرير التفرد</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-addPlagiarism" step="500" min="0">
+                                <span class="admin-unit">د.ع</span>
+                            </div>
+                        </div>
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">📊 تصميم شرائح عرض PowerPoint</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-addPresentation" step="500" min="0">
+                                <span class="admin-unit">د.ع</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: PROMO & SPEED -->
+                <div class="admin-tab-pane" id="tab-promo">
+                    <h4 style="font-size:0.95rem;color:var(--gold-bright);margin-bottom:0.6rem;">🏷️ كود الخصم السري الخاص بالمدير</h4>
+                    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1rem;">
+                        يمكنك إنشاء كود تخفيض سري خاص لتطبيقه للعملاء المميزين مباشرة في الفاتورة:
+                    </p>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">الرمز السري (الكود)</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="text" id="adm-promoCode" placeholder="VIP2026" style="text-transform:uppercase;">
+                            </div>
+                        </div>
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">نسبة الخصم</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-promoPercent" min="1" max="90" step="1">
+                                <span class="admin-unit">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size:0.95rem;color:var(--gold-bright);margin-bottom:0.6rem;">⚡ نسب رسوم الاستعجال</h4>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">🚀 سريع (خلال 3 أيام)</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-speedFast" min="0" max="200" step="5">
+                                <span class="admin-unit">%</span>
+                            </div>
+                        </div>
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">⚡ عاجل جداً (خلال 24 ساعة)</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="number" id="adm-speedUrgent" min="0" max="300" step="5">
+                                <span class="admin-unit">%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: SECURITY -->
+                <div class="admin-tab-pane" id="tab-security">
+                    <h4 style="font-size:0.95rem;color:var(--gold-bright);margin-bottom:0.6rem;">🔒 حماية لوحة المدير ورمز المرور</h4>
+                    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1.2rem;">
+                        غيّر كلمة مرور الدخول للوحة المدير للحفاظ على أمان وخزن التسعير:
+                    </p>
+                    <div style="max-width:380px;display:flex;flex-direction:column;gap:0.9rem;">
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">كلمة المرور الجديدة</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="password" id="adm-newPwd" placeholder="أدخل الرمز الجديد...">
+                            </div>
+                        </div>
+                        <div class="admin-field-card">
+                            <label class="admin-field-label">تأكيد كلمة المرور الجديدة</label>
+                            <div class="admin-field-input-wrap">
+                                <input type="password" id="adm-confirmPwd" placeholder="أعد إدخال الرمز...">
+                            </div>
+                        </div>
+                        <button type="button" class="btn-ghost-reset" style="align-self:flex-start;" onclick="saveNewPassword()">حفظ كلمة المرور الجديدة 🔐</button>
+                        <div id="pwdChangeMsg" style="font-size:0.8rem;min-height:1.2em;font-weight:600;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-dash-footer">
+                <div style="display:flex;gap:0.7rem;flex-wrap:wrap;">
+                    <button type="button" class="btn-gold-save" onclick="saveAdminSettings()">💾 حفظ وتطبيق كافة التغييرات</button>
+                    <button type="button" class="btn-ghost-reset" onclick="resetDefaultPricing()">🔄 استعادة الافتراضي</button>
+                </div>
+                <button type="button" class="btn-logout" onclick="logoutAdmin()">تسجيل خروج 🔒</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="admin-toast" id="adminToast">✅ تم الحفظ بنجاح!</div>
+
+<script>
+// ─── CANVAS BACKGROUND ───────────────────────────────
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resizeCanvas() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+}
+
+function createParticles() {
+    particles = [];
+    const count = Math.min(Math.floor(W / 30), 50);
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: Math.random() * W, y: Math.random() * H,
+            r: 0.5 + Math.random() * 1.5,
+            vx: (Math.random() - 0.5) * 0.2,
+            vy: -0.1 - Math.random() * 0.3,
+            alpha: 0.1 + Math.random() * 0.4
+        });
+    }
+}
+
+function drawParticles() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(201,162,39,${p.alpha})`;
+        ctx.fill();
+        p.x += p.vx; p.y += p.vy;
+        if (p.y < -5) { p.y = H + 5; p.x = Math.random() * W; }
+        if (p.x < -5) p.x = W + 5;
+        if (p.x > W + 5) p.x = -5;
+    });
+    requestAnimationFrame(drawParticles);
+}
+
+window.addEventListener('resize', () => { resizeCanvas(); createParticles(); });
+resizeCanvas(); createParticles(); drawParticles();
+
+// ─── SERVICE NAMES MAP ───────────────────────────────
+const serviceNames = {
+    'st-research': 'بحث أكاديمي',
+    'st-essay':    'مقالة علمية',
+    'st-thesis':   'رسالة ماجستير',
+    'st-phd':      'أطروحة دكتوراه',
+    'st-report':   'تقرير دراسي',
+    'st-summary':  'تلخيص وإعادة صياغة',
+    'st-translate':'ترجمة أكاديمية',
+    'st-proposal': 'خطة بحثية',
+};
+
+const speedNotes = {
+    '0':   '',
+    '0.2': '📅 التسليم خلال أسبوع',
+    '0.4': '🚀 التسليم خلال 3 أيام',
+    '0.7': '⚡ تسليم عاجل خلال 24 ساعة',
+};
+
+const addonNames = {
+    addReferences:   '📚 مصادر ومراجع',
+    addProofreading: '🔍 تدقيق لغوي',
+    addCoverDesign:  '🎨 تصميم غلاف',
+    addPlagiarism:   '🛡️ فحص انتحال',
+    addPresentation: '📊 شرائح عرض',
+};
+
+// ─── ADDON TOGGLE ────────────────────────────────────
+function toggleAddon(label) {
+    const cb = label.querySelector('input[type="checkbox"]');
+    cb.checked = !cb.checked;
+    label.classList.toggle('checked', cb.checked);
+    calculate();
+}
+
+// ─── PAGE CONTROL ────────────────────────────────────
+function changePage(delta) {
+    const el = document.getElementById('pageCount');
+    const val = Math.max(1, (parseInt(el.value) || 1) + delta);
+    el.value = val;
+    calculate();
+}
+
+// ─── CLIENT LABEL ────────────────────────────────────
+function updateSummaryClient() {
+    const name = document.getElementById('clientName').value.trim();
+    document.getElementById('clientLabel').textContent = name ? 'عرض سعر لـ: ' + name : '';
+}
+
+// ─── FORMAT ─────────────────────────────────────────
+function fmt(n) {
+    return Math.round(n).toLocaleString('ar-IQ');
+}
+
+// ─── FLASH ANIMATION ─────────────────────────────────
+function flash(id) {
+    const el = document.getElementById(id);
+    el.classList.remove('number-flash');
+    void el.offsetWidth;
+    el.classList.add('number-flash');
+}
+
+// ─── ADMIN & PRICING STORAGE DEFAULTS ─────────────────
+const DEFAULT_SERVICES = {
+    'st-research': 5000,
+    'st-essay':    3500,
+    'st-thesis':   7000,
+    'st-phd':      10000,
+    'st-report':   4000,
+    'st-summary':  2500,
+    'st-translate':3000,
+    'st-proposal': 6000,
+};
+
+const DEFAULT_ADDONS = {
+    addReferences:   2000,
+    addProofreading: 3000,
+    addCoverDesign:  5000,
+    addPlagiarism:   4000,
+    addPresentation: 6000,
+};
+
+const DEFAULT_SPEED = {
+    fast: 20,   // %
+    urgent: 70, // %
+};
+
+const DEFAULT_PROMO = {
+    code: 'VIP2026',
+    percent: 15,
+};
+
+const DEFAULT_PASSWORD = '2026';
+
+// Helper storage getters
+function getStoredServices() {
+    try {
+        const s = localStorage.getItem('academic_services_prices');
+        return s ? Object.assign({}, DEFAULT_SERVICES, JSON.parse(s)) : Object.assign({}, DEFAULT_SERVICES);
+    } catch(e) { return Object.assign({}, DEFAULT_SERVICES); }
+}
+
+function getStoredAddons() {
+    try {
+        const s = localStorage.getItem('academic_addons_prices');
+        return s ? Object.assign({}, DEFAULT_ADDONS, JSON.parse(s)) : Object.assign({}, DEFAULT_ADDONS);
+    } catch(e) { return Object.assign({}, DEFAULT_ADDONS); }
+}
+
+function getStoredSpeed() {
+    try {
+        const s = localStorage.getItem('academic_speed_rates');
+        return s ? Object.assign({}, DEFAULT_SPEED, JSON.parse(s)) : Object.assign({}, DEFAULT_SPEED);
+    } catch(e) { return Object.assign({}, DEFAULT_SPEED); }
+}
+
+function getStoredPromo() {
+    try {
+        const s = localStorage.getItem('academic_secret_promo');
+        return s ? Object.assign({}, DEFAULT_PROMO, JSON.parse(s)) : Object.assign({}, DEFAULT_PROMO);
+    } catch(e) { return Object.assign({}, DEFAULT_PROMO); }
+}
+
+function getStoredPassword() {
+    const p = localStorage.getItem('academic_admin_pwd');
+    if (!p || p === '1234') {
+        localStorage.setItem('academic_admin_pwd', '2026');
+        return '2026';
+    }
+    return p;
+}
+
+// Active discount state
+let activeDiscount = null;
+
+// Apply stored pricing to the HTML elements and badges
+function applyStoredPricingToDOM() {
+    const services = getStoredServices();
+    Object.keys(services).forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.value = services[id];
+            const label = document.querySelector(`label[for="${id}"]`);
+            if (label) {
+                const priceBadge = label.querySelector('.s-price');
+                if (priceBadge) priceBadge.textContent = fmt(services[id]) + ' د.ع / صفحة';
+            }
+        }
+    });
+
+    const addons = getStoredAddons();
+    Object.keys(addons).forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.value = addons[id];
+            const label = document.querySelector(`label[for="${id}"]`);
+            if (label) {
+                const priceBadge = label.querySelector('.addon-price');
+                if (priceBadge) priceBadge.textContent = '+' + fmt(addons[id]) + ' د.ع';
+            }
+        }
+    });
+
+    const speed = getStoredSpeed();
+    const spFast = document.getElementById('sp-fast');
+    if (spFast) {
+        spFast.value = speed.fast / 100;
+        const spFastLabel = document.querySelector('label[for="sp-fast"] .sp-pct');
+        if (spFastLabel) spFastLabel.textContent = `+${speed.fast}%`;
+    }
+    const spUrgent = document.getElementById('sp-urgent');
+    if (spUrgent) {
+        spUrgent.value = speed.urgent / 100;
+        const spUrgentLabel = document.querySelector('label[for="sp-urgent"] .sp-pct');
+        if (spUrgentLabel) spUrgentLabel.textContent = `+${speed.urgent}%`;
+    }
+}
+
+// ─── CALCULATE ───────────────────────────────────────
+function calculate() {
+    // Service
+    const serviceRadio = document.querySelector('input[name="serviceType"]:checked');
+    const pagePrice = serviceRadio ? parseFloat(serviceRadio.value) : 5000;
+    const serviceId = serviceRadio ? serviceRadio.id : 'st-research';
+    const pages = Math.max(1, parseInt(document.getElementById('pageCount').value) || 1);
+    const baseTotal = pagePrice * pages;
+
+    // Speed
+    const speedRadio = document.querySelector('input[name="deliverySpeed"]:checked');
+    const speedRatio = speedRadio ? parseFloat(speedRadio.value) : 0;
+    const urgencyFee = Math.round(baseTotal * speedRatio);
+
+    // Addons
+    const addonIds = ['addReferences', 'addProofreading', 'addCoverDesign', 'addPlagiarism', 'addPresentation'];
+    let addonsTotal = 0;
+    const activeAddons = [];
+    addonIds.forEach(id => {
+        const cb = document.getElementById(id);
+        if (cb && cb.checked) {
+            addonsTotal += parseFloat(cb.value);
+            activeAddons.push(id);
+        }
+    });
+
+    // Subtotal before secret promo discount
+    const subtotal = baseTotal + urgencyFee + addonsTotal;
+    let discountAmount = 0;
+
+    const discountRow = document.getElementById('discountRow');
+    const discountDisplay = document.getElementById('discountDisplay');
+
+    if (activeDiscount && activeDiscount.percent > 0) {
+        discountAmount = Math.round(subtotal * (activeDiscount.percent / 100));
+        activeDiscount.amount = discountAmount;
+        if (discountRow) discountRow.style.display = 'flex';
+        if (discountDisplay) discountDisplay.textContent = '-' + fmt(discountAmount) + ' د.ع (' + activeDiscount.percent + '%)';
+    } else {
+        if (discountRow) discountRow.style.display = 'none';
+    }
+
+    const finalTotal = Math.max(0, subtotal - discountAmount);
+
+    // ── Update UI ──
+    const sDisp = document.getElementById('serviceDisplay');
+    if (sDisp) sDisp.textContent = serviceNames[serviceId] || '—';
+
+    const pDisp = document.getElementById('pricePerPageDisplay');
+    if (pDisp) pDisp.textContent = fmt(pagePrice) + ' د.ع';
+
+    const pgDisp = document.getElementById('pagesDisplay');
+    if (pgDisp) pgDisp.textContent = pages;
+
+    const basePriceEl = document.getElementById('basePriceDisplay');
+    if (basePriceEl) {
+        basePriceEl.textContent = fmt(baseTotal) + ' د.ع';
+        flash('basePriceDisplay');
+    }
+
+    const urgencyEl = document.getElementById('urgencyDisplay');
+    if (urgencyEl) {
+        if (urgencyFee > 0) {
+            urgencyEl.textContent = '+' + fmt(urgencyFee) + ' د.ع';
+            urgencyEl.className = 'row-value positive';
+        } else {
+            urgencyEl.textContent = '—';
+            urgencyEl.className = 'row-value zero';
+        }
+    }
+
+    const addonsEl = document.getElementById('addonsDisplay');
+    if (addonsEl) {
+        if (addonsTotal > 0) {
+            addonsEl.textContent = '+' + fmt(addonsTotal) + ' د.ع';
+            addonsEl.className = 'row-value positive';
+        } else {
+            addonsEl.textContent = '—';
+            addonsEl.className = 'row-value zero';
+        }
+    }
+
+    // Addon tags
+    const tagsContainer = document.getElementById('addonTagsContainer');
+    if (tagsContainer) {
+        tagsContainer.innerHTML = activeAddons.map(id =>
+            '<span class="breakdown-tag">' + (addonNames[id] || id) + '</span>'
+        ).join('');
+    }
+
+    const totEl = document.getElementById('totalDisplay');
+    if (totEl) {
+        totEl.textContent = fmt(finalTotal) + ' د.ع';
+        flash('totalDisplay');
+    }
+
+    // Hero
+    animateHero(finalTotal);
+
+    // Speed note
+    const spNote = document.getElementById('speedNote');
+    if (spNote && speedRadio) {
+        spNote.textContent = speedNotes[speedRadio.value] || '';
+    }
+
+    // Store for copy and invoice
+    window._invoiceData = {
+        client: document.getElementById('clientName').value.trim(),
+        title: document.getElementById('projectTitle').value.trim(),
+        service: serviceNames[serviceId],
+        pricePerPage: pagePrice,
+        pages, baseTotal, urgencyFee, addonsTotal, discountAmount, finalTotal,
+        activeAddons: activeAddons.map(id => addonNames[id]),
+        speedNote: (speedRadio ? speedNotes[speedRadio.value] : '') || 'تسليم عادي',
+    };
+
+    // Update payment & remaining
+    updatePaidCalculation(finalTotal);
+}
+
+// ─── HERO COUNTER ────────────────────────────────────
+let heroAnimId;
+function animateHero(target) {
+    cancelAnimationFrame(heroAnimId);
+    const el = document.getElementById('heroAmount');
+    if (!el) return;
+    const start = parseFloat(el.textContent.replace(/,/g, '').replace(/[^\d.]/g, '')) || 0;
+    const startTime = performance.now();
+    const duration = 400;
+    const ease = t => 1 - Math.pow(1 - t, 3);
+
+    function step(now) {
+        const t = Math.min((now - startTime) / duration, 1);
+        el.textContent = fmt(start + (target - start) * ease(t));
+        if (t < 1) heroAnimId = requestAnimationFrame(step);
+        else el.textContent = fmt(target);
+    }
+    heroAnimId = requestAnimationFrame(step);
+}
+
+// ─── COPY INVOICE ────────────────────────────────────
+function copyInvoice() {
+    const d = window._invoiceData;
+    if (!d) return;
+    const remaining = Math.max(0, d.finalTotal - currentPaidAmount);
+    const lines = [
+        '═══ فاتورة خدمات كتابة أكاديمية معتمدة ═══',
+        'رقم الفاتورة: ' + currentInvoiceNumber,
+        'تاريخ الإصدار: ' + getFormattedArabicDate(),
+        d.client ? 'العميل: ' + d.client : '',
+        d.title  ? 'الموضوع: ' + d.title  : '',
+        '───────────────────────',
+        'نوع الخدمة : ' + d.service,
+        'سعر الصفحة : ' + fmt(d.pricePerPage) + ' د.ع',
+        'عدد الصفحات: ' + d.pages + ' صفحة',
+        'السعر الأساسي: ' + fmt(d.baseTotal) + ' د.ع',
+        d.urgencyFee > 0 ? 'رسوم الاستعجال: +' + fmt(d.urgencyFee) + ' د.ع' : '',
+        d.addonsTotal > 0 ? 'إجمالي الإضافات: +' + fmt(d.addonsTotal) + ' د.ع' : '',
+        d.activeAddons.length ? 'الإضافات: ' + d.activeAddons.join(' | ') : '',
+        d.discountAmount > 0 ? 'خصم إداري خاص: -' + fmt(d.discountAmount) + ' د.ع' : '',
+        '───────────────────────',
+        '💰 المبلغ الإجمالي: ' + fmt(d.finalTotal) + ' د.ع',
+        '💵 المبلغ المدفوع: ' + fmt(currentPaidAmount) + ' د.ع',
+        '⏳ المتبقي للسداد: ' + fmt(remaining) + ' د.ع',
+        '⏱️ التسليم: ' + d.speedNote,
+        '═══════════════════════',
+        'شكراً لثقتكم ✦ مؤسسة الأفق الأكاديمية',
+    ].filter(Boolean).join('\n');
+
+    navigator.clipboard.writeText(lines).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = '✅ تم النسخ بنجاح!';
+        btn.style.borderColor = '#22c55e';
+        btn.style.color = '#22c55e';
+        setTimeout(() => {
+            btn.textContent = '📋 نسخ ملخص الفاتورة';
+            btn.style.borderColor = '';
+            btn.style.color = '';
+        }, 2500);
+    }).catch(() => alert('تعذّر النسخ — يرجى المحاولة يدوياً'));
+}
+
+// ─── INVOICE & PAYMENT MANAGEMENT ────────────────────
+let currentInvoiceNumber = generateInvoiceId();
+let currentPaidAmount = 0;
+
+function generateInvoiceId() {
+    const d = new Date();
+    const yr = String(d.getFullYear()).slice(-2);
+    const mo = String(d.getMonth() + 1).padStart(2, '0');
+    const rnd = Math.floor(1000 + Math.random() * 9000);
+    return `INV-${yr}${mo}-${rnd}`;
+}
+
+function regenerateInvoiceId() {
+    currentInvoiceNumber = generateInvoiceId();
+    const el = document.getElementById('invNumberDisplay');
+    if (el) el.textContent = currentInvoiceNumber;
+    showToast('🔄 تم توليد رقم فاتورة جديد: ' + currentInvoiceNumber);
+}
+
+function updatePaidCalculation(totalParam) {
+    const total = (typeof totalParam === 'number') ? totalParam : (window._invoiceData ? window._invoiceData.finalTotal : 0);
+    const paidInput = document.getElementById('paidAmountInput');
+    let paid = paidInput ? parseFloat(paidInput.value) || 0 : 0;
+    paid = Math.max(0, paid);
+    currentPaidAmount = paid;
+
+    const remaining = Math.max(0, total - paid);
+    const remainEl = document.getElementById('remainingAmountDisplay');
+    if (remainEl) {
+        if (remaining === 0 && total > 0) {
+            remainEl.style.color = '#22c55e';
+            remainEl.textContent = '0 د.ع (مسدد بالكامل)';
+        } else {
+            remainEl.style.color = '#f59e0b';
+            remainEl.textContent = fmt(remaining) + ' د.ع';
+        }
+    }
+
+    if (window._invoiceData) {
+        window._invoiceData.paidAmount = paid;
+        window._invoiceData.remainingAmount = remaining;
+    }
+}
+
+function setQuickPaid(ratio) {
+    const total = window._invoiceData ? window._invoiceData.finalTotal : 0;
+    const paidInput = document.getElementById('paidAmountInput');
+    if (paidInput) {
+        const val = Math.round(total * ratio);
+        paidInput.value = val;
+        updatePaidCalculation(total);
+        flash('remainingAmountDisplay');
+    }
+}
+
+function getFormattedArabicDate() {
+    const d = new Date();
+    const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function openInvoiceModal() {
+    const d = window._invoiceData;
+    if (!d) return;
+
+    // 1. Meta
+    document.getElementById('invNumberDisplay').textContent = currentInvoiceNumber;
+    document.getElementById('invDateDisplay').textContent = getFormattedArabicDate();
+    document.getElementById('invDueDateDisplay').textContent = d.speedNote || 'تسليم عادي';
+
+    // 2. Client info
+    document.getElementById('invClientName').textContent = d.client || 'عميل كريم';
+    const phone = document.getElementById('clientPhone').value.trim();
+    document.getElementById('invClientPhone').textContent = phone ? 'هاتف: ' + phone : 'رقم التواصل: غير محدد';
+    document.getElementById('invProjectTitle').textContent = d.title || 'خدمة كتابة وبحث أكاديمي';
+    const notes = document.getElementById('clientNotes').value.trim();
+    document.getElementById('invProjectNotes').textContent = notes ? 'ملاحظات: ' + notes : 'المواصفات معتمدة حسب الشروط المتفق عليها';
+
+    // 3. Status Badge
+    const statusBadge = document.getElementById('invStatusBadge');
+    const paid = currentPaidAmount;
+    const total = d.finalTotal;
+    const remaining = Math.max(0, total - paid);
+
+    if (paid >= total && total > 0) {
+        statusBadge.className = 'inv-status-badge inv-status-paid';
+        statusBadge.textContent = '✅ مدفوعة بالكامل';
+    } else if (paid > 0) {
+        statusBadge.className = 'inv-status-badge inv-status-partial';
+        statusBadge.textContent = '⏳ دفعة مقدمة (متبقي)';
+    } else {
+        statusBadge.className = 'inv-status-badge inv-status-unpaid';
+        statusBadge.textContent = '⚠️ مستحقة (غير مدفوع)';
+    }
+
+    // 4. Build Itemized Table
+    const tbody = document.getElementById('invItemsTableBody');
+    let rowsHtml = '';
+    let rowNum = 1;
+
+    // Service row
+    rowsHtml += `
+        <tr>
+            <td style="color:#94a3b8;">${rowNum++}</td>
+            <td><strong>${d.service}</strong></td>
+            <td>إعداد وصياغة أكاديمية موثقة (${d.pages} صفحة)</td>
+            <td>${fmt(d.pricePerPage)} د.ع</td>
+            <td style="text-align:center;">${d.pages}</td>
+            <td>${fmt(d.baseTotal)} د.ع</td>
+        </tr>
+    `;
+
+    // Urgency row
+    if (d.urgencyFee > 0) {
+        rowsHtml += `
+            <tr>
+                <td style="color:#94a3b8;">${rowNum++}</td>
+                <td><strong>رسوم تسليم عاجل</strong></td>
+                <td>تسريع وتيرة الإنجاز والأولوية القصوى (${d.speedNote})</td>
+                <td>+${fmt(d.urgencyFee)} د.ع</td>
+                <td style="text-align:center;">1</td>
+                <td style="color:#aa771c;">+${fmt(d.urgencyFee)} د.ع</td>
+            </tr>
+        `;
+    }
+
+    // Addons rows
+    const storedAddons = getStoredAddons();
+    d.activeAddons.forEach(addonName => {
+        const matchedKey = Object.keys(addonNames).find(k => addonNames[k] === addonName);
+        const addonPrice = matchedKey && storedAddons[matchedKey] ? storedAddons[matchedKey] : 0;
+        rowsHtml += `
+            <tr>
+                <td style="color:#94a3b8;">${rowNum++}</td>
+                <td><strong>${addonName}</strong></td>
+                <td>خدمة إضافية تخصصية مكملة للبحث</td>
+                <td>+${fmt(addonPrice)} د.ع</td>
+                <td style="text-align:center;">1</td>
+                <td>+${fmt(addonPrice)} د.ع</td>
+            </tr>
+        `;
+    });
+
+    // Discount row
+    if (d.discountAmount > 0) {
+        rowsHtml += `
+            <tr style="background:#f0fdf4;">
+                <td style="color:#16a34a;">★</td>
+                <td style="color:#16a34a;"><strong>خصم إداري خاص</strong></td>
+                <td style="color:#16a34a;">كود الخصم المعتمد (${activeDiscount ? activeDiscount.percent : 0}%)</td>
+                <td style="color:#16a34a;">-${fmt(d.discountAmount)} د.ع</td>
+                <td style="text-align:center;color:#16a34a;">1</td>
+                <td style="color:#16a34a;">-${fmt(d.discountAmount)} د.ع</td>
+            </tr>
+        `;
+    }
+
+    tbody.innerHTML = rowsHtml;
+
+    // 5. Totals
+    document.getElementById('invSubtotal').textContent = fmt(d.baseTotal) + ' د.ع';
+    
+    const urgRow = document.getElementById('invUrgencyRow');
+    if (d.urgencyFee > 0) {
+        urgRow.style.display = 'table-row';
+        document.getElementById('invUrgency').textContent = '+' + fmt(d.urgencyFee) + ' د.ع';
+    } else { urgRow.style.display = 'none'; }
+
+    const addRow = document.getElementById('invAddonsRow');
+    if (d.addonsTotal > 0) {
+        addRow.style.display = 'table-row';
+        document.getElementById('invAddons').textContent = '+' + fmt(d.addonsTotal) + ' د.ع';
+    } else { addRow.style.display = 'none'; }
+
+    const discRow = document.getElementById('invDiscountRow');
+    if (d.discountAmount > 0) {
+        discRow.style.display = 'table-row';
+        document.getElementById('invDiscount').textContent = '-' + fmt(d.discountAmount) + ' د.ع';
+    } else { discRow.style.display = 'none'; }
+
+    document.getElementById('invGrandTotal').textContent = fmt(d.finalTotal) + ' د.ع';
+    document.getElementById('invPaidAmount').textContent = fmt(paid) + ' د.ع';
+    document.getElementById('invRemainingAmount').textContent = fmt(remaining) + ' د.ع';
+
+    // Show overlay
+    const overlay = document.getElementById('invoiceOverlay');
+    if (overlay) overlay.classList.add('active');
+}
+
+function closeInvoiceModal() {
+    const overlay = document.getElementById('invoiceOverlay');
+    if (overlay) overlay.classList.remove('active');
+}
+
+function handleInvoiceOverlayClick(e) {
+    if (e.target && e.target.id === 'invoiceOverlay') {
+        closeInvoiceModal();
+    }
+}
+
+// ─── SECRET PROMO CODE LOGIC ─────────────────────────
+function togglePromoBox() {
+    const box = document.getElementById('secretPromoBox');
+    if (box) {
+        box.classList.toggle('open');
+        if (box.classList.contains('open')) {
+            const inp = document.getElementById('promoCodeInput');
+            if (inp) inp.focus();
+        }
+    }
+}
+
+function applyPromoCode() {
+    const inp = document.getElementById('promoCodeInput');
+    if (!inp) return;
+    const code = inp.value.trim().toUpperCase();
+    const storedPromo = getStoredPromo();
+
+    if (code && code === (storedPromo.code || '').toUpperCase()) {
+        activeDiscount = {
+            code: storedPromo.code,
+            percent: storedPromo.percent,
+            amount: 0
+        };
+        const appBox = document.getElementById('secretPromoApplied');
+        const appTxt = document.getElementById('promoAppliedText');
+        if (appTxt) appTxt.textContent = `✅ تم تفعيل خصم المدير (${storedPromo.percent}%) بنجاح!`;
+        if (appBox) appBox.style.display = 'flex';
+        inp.value = '';
+        const box = document.getElementById('secretPromoBox');
+        if (box) box.classList.remove('open');
+        showToast(`🎉 تم تطبيق الخصم الإداري (${storedPromo.percent}%)`);
+        calculate();
+    } else {
+        showToast('❌ رمز غير صالح أو غير مفعل');
+        inp.classList.add('shake-anim');
+        setTimeout(() => inp.classList.remove('shake-anim'), 400);
+    }
+}
+
+function removePromoCode() {
+    activeDiscount = null;
+    const appBox = document.getElementById('secretPromoApplied');
+    if (appBox) appBox.style.display = 'none';
+    calculate();
+    showToast('تم إلغاء الخصم');
+}
+
+// ─── ADMIN PORTAL & AUTH LOGIC ───────────────────────
+function openAdminPortal() {
+    const overlay = document.getElementById('adminOverlay');
+    const authBox = document.getElementById('adminAuthBox');
+    const dashBox = document.getElementById('adminDashboardBox');
+    const errEl = document.getElementById('adminAuthError');
+    const pwdInput = document.getElementById('adminPasswordInput');
+
+    if (errEl) errEl.textContent = '';
+    if (pwdInput) pwdInput.value = '';
+
+    const isAuthed = sessionStorage.getItem('academic_admin_auth') === 'true';
+
+    if (isAuthed) {
+        if (authBox) authBox.style.display = 'none';
+        if (dashBox) dashBox.style.display = 'block';
+        populateAdminDashboard();
+    } else {
+        if (authBox) authBox.style.display = 'block';
+        if (dashBox) dashBox.style.display = 'none';
+        setTimeout(() => { if (pwdInput) pwdInput.focus(); }, 100);
+    }
+
+    if (overlay) overlay.classList.add('active');
+}
+
+function closeAdminPortal() {
+    const overlay = document.getElementById('adminOverlay');
+    if (overlay) overlay.classList.remove('active');
+}
+
+function handleOverlayClick(e) {
+    if (e.target && e.target.id === 'adminOverlay') {
+        closeAdminPortal();
+    }
+}
+
+function togglePwdVisibility() {
+    const input = document.getElementById('adminPasswordInput');
+    if (!input) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function verifyAdminPassword() {
+    const pwdInput = document.getElementById('adminPasswordInput');
+    const errEl = document.getElementById('adminAuthError');
+    if (!pwdInput) return;
+
+    const entered = pwdInput.value.trim();
+    const currentPwd = getStoredPassword();
+
+    if (entered === currentPwd) {
+        sessionStorage.setItem('academic_admin_auth', 'true');
+        if (errEl) errEl.textContent = '';
+        const authBox = document.getElementById('adminAuthBox');
+        const dashBox = document.getElementById('adminDashboardBox');
+        if (authBox) authBox.style.display = 'none';
+        if (dashBox) dashBox.style.display = 'block';
+        populateAdminDashboard();
+        showToast('🔓 مرحباً بك في خانة المدير');
+    } else {
+        if (errEl) errEl.textContent = '❌ كلمة المرور غير صحيحة، حاول مجدداً';
+        pwdInput.classList.add('shake-anim');
+        setTimeout(() => pwdInput.classList.remove('shake-anim'), 400);
+    }
+}
+
+function switchAdminTab(tab) {
+    ['services', 'addons', 'promo', 'security'].forEach(t => {
+        const btn = document.getElementById('tabBtn-' + t);
+        const pane = document.getElementById('tab-' + t);
+        if (btn) btn.classList.toggle('active', t === tab);
+        if (pane) pane.classList.toggle('active', t === tab);
+    });
+}
+
+function populateAdminDashboard() {
+    const services = getStoredServices();
+    Object.keys(services).forEach(id => {
+        const inp = document.getElementById('adm-' + id);
+        if (inp) inp.value = services[id];
+    });
+
+    const addons = getStoredAddons();
+    Object.keys(addons).forEach(id => {
+        const inp = document.getElementById('adm-' + id);
+        if (inp) inp.value = addons[id];
+    });
+
+    const promo = getStoredPromo();
+    const pCodeInp = document.getElementById('adm-promoCode');
+    if (pCodeInp) pCodeInp.value = promo.code || 'VIP2026';
+    const pPctInp = document.getElementById('adm-promoPercent');
+    if (pPctInp) pPctInp.value = promo.percent || 15;
+
+    const speed = getStoredSpeed();
+    const spFast = document.getElementById('adm-speedFast');
+    if (spFast) spFast.value = speed.fast;
+    const spUrgent = document.getElementById('adm-speedUrgent');
+    if (spUrgent) spUrgent.value = speed.urgent;
+}
+
+function saveAdminSettings() {
+    // 1. Services
+    const newServices = {};
+    Object.keys(DEFAULT_SERVICES).forEach(id => {
+        const inp = document.getElementById('adm-' + id);
+        newServices[id] = inp ? Math.max(100, parseFloat(inp.value) || DEFAULT_SERVICES[id]) : DEFAULT_SERVICES[id];
+    });
+    localStorage.setItem('academic_services_prices', JSON.stringify(newServices));
+
+    // 2. Addons
+    const newAddons = {};
+    Object.keys(DEFAULT_ADDONS).forEach(id => {
+        const inp = document.getElementById('adm-' + id);
+        newAddons[id] = inp ? Math.max(0, parseFloat(inp.value) || 0) : DEFAULT_ADDONS[id];
+    });
+    localStorage.setItem('academic_addons_prices', JSON.stringify(newAddons));
+
+    // 3. Promo
+    const pCode = (document.getElementById('adm-promoCode').value || 'VIP2026').trim().toUpperCase();
+    const pPct = Math.max(1, Math.min(95, parseInt(document.getElementById('adm-promoPercent').value) || 15));
+    localStorage.setItem('academic_secret_promo', JSON.stringify({ code: pCode, percent: pPct }));
+
+    // 4. Speed
+    const spFastVal = Math.max(0, parseInt(document.getElementById('adm-speedFast').value) || 20);
+    const spUrgentVal = Math.max(0, parseInt(document.getElementById('adm-speedUrgent').value) || 70);
+    localStorage.setItem('academic_speed_rates', JSON.stringify({ fast: spFastVal, urgent: spUrgentVal }));
+
+    // Apply & re-render
+    applyStoredPricingToDOM();
+    calculate();
+    showToast('💾 تم حفظ الأسعار الجديدة وتحديث الحاسبة بنجاح!');
+}
+
+function resetDefaultPricing() {
+    if (!confirm('هل أنت متأكد من استعادة كافة الأسعار الافتراضية الأصلية؟')) return;
+    localStorage.removeItem('academic_services_prices');
+    localStorage.removeItem('academic_addons_prices');
+    localStorage.removeItem('academic_speed_rates');
+    localStorage.removeItem('academic_secret_promo');
+
+    applyStoredPricingToDOM();
+    populateAdminDashboard();
+    calculate();
+    showToast('🔄 تم استعادة كافة الأسعار الافتراضية بنجاح!');
+}
+
+function saveNewPassword() {
+    const p1 = document.getElementById('adm-newPwd').value.trim();
+    const p2 = document.getElementById('adm-confirmPwd').value.trim();
+    const msg = document.getElementById('pwdChangeMsg');
+
+    if (!p1 || p1.length < 3) {
+        if (msg) {
+            msg.textContent = '❌ كلمة المرور يجب أن تتكون من 3 أحرف أو أرقام على الأقل';
+            msg.style.color = '#ef4444';
+        }
+        return;
+    }
+    if (p1 !== p2) {
+        if (msg) {
+            msg.textContent = '❌ كلمتا المرور غير متطابقتين!';
+            msg.style.color = '#ef4444';
+        }
+        return;
+    }
+
+    localStorage.setItem('academic_admin_pwd', p1);
+    document.getElementById('adm-newPwd').value = '';
+    document.getElementById('adm-confirmPwd').value = '';
+    if (msg) {
+        msg.textContent = '✅ تم حفظ كلمة المرور الجديدة بنجاح!';
+        msg.style.color = '#4ade80';
+    }
+    showToast('🔐 تم تحديث كلمة المرور بنجاح!');
+}
+
+function logoutAdmin() {
+    sessionStorage.removeItem('academic_admin_auth');
+    closeAdminPortal();
+    showToast('🔒 تم تسجيل الخروج من وضع المدير');
+}
+
+function showToast(text) {
+    const t = document.getElementById('adminToast');
+    if (!t) return;
+    t.textContent = text;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Secret click triggers (triple-click header diamond or badge)
+let headerClicks = 0;
+let lastHeaderClick = 0;
+function onBadgeClick() {
+    const now = Date.now();
+    if (now - lastHeaderClick < 600) headerClicks++;
+    else headerClicks = 1;
+    lastHeaderClick = now;
+    if (headerClicks >= 3) {
+        headerClicks = 0;
+        openAdminPortal();
+    }
+}
+
+function onDividerClick() {
+    const now = Date.now();
+    if (now - lastHeaderClick < 600) headerClicks++;
+    else headerClicks = 1;
+    lastHeaderClick = now;
+    if (headerClicks >= 3) {
+        headerClicks = 0;
+        openAdminPortal();
+    }
+}
+
+// Secret keyboard shortcut (Ctrl + M or Ctrl + Shift + A)
+window.addEventListener('keydown', e => {
+    if ((e.ctrlKey && e.key.toLowerCase() === 'm') || (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a')) {
+        e.preventDefault();
+        openAdminPortal();
+    }
+});
+
+// ─── ALIAS & LISTENERS ──────────────────────────────
+const calculateTotal = calculate;
+window.calculateTotal = calculateTotal;
+
+// ربط مستمعات التفاعل الفوري لجميع العناصر
+const serviceInputs = Array.from(document.querySelectorAll('input[name="serviceType"]'));
+const speedInputs = Array.from(document.querySelectorAll('input[name="deliverySpeed"]'));
+const addonInputs = Array.from(document.querySelectorAll('.addon-item input[type="checkbox"]'));
+const pageCountInput = document.getElementById('pageCount');
+
+// إدارة تأثير تحديد بطاقات الإضافات
+addonInputs.forEach(cb => {
+    cb.addEventListener('change', () => {
+        const item = cb.closest('.addon-item');
+        if (item) item.classList.toggle('checked', cb.checked);
+        calculateTotal();
+    });
+});
+
+// إضافة المستمعات للتفاعل الفوري لكل حقول التسعير
+[...serviceInputs, ...speedInputs, ...addonInputs, pageCountInput].filter(Boolean).forEach(element => {
+    element.addEventListener('input', calculateTotal);
+    element.addEventListener('change', calculateTotal);
+});
+
+// تحديث اسم العميل
+document.getElementById('clientName').addEventListener('input', updateSummaryClient);
+
+// تطبيق الأسعار المحفوظة عند التحميل ثم الحساب الأولي
+applyStoredPricingToDOM();
+calculateTotal();
+</script>
+</body>
+</html>

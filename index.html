@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة تسعير الخدمات الفاخرة</title>
+    <meta name="description" content="حاسبة تسعير احترافية للخدمات الفاخرة - احسب تكلفة خدماتك بدقة وسهولة">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0c12;
+            --bg-secondary: #0f1117;
+            --card-bg: rgba(18, 22, 35, 0.85);
+            --card-inner: rgba(10, 14, 24, 0.6);
+            --gold-primary: #d4af37;
+            --gold-dark: #aa771c;
+            --gold-light: #f3e5ab;
+            --gold-pale: #fdf8e8;
+            --gold-gradient: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            --gold-gradient-2: linear-gradient(135deg, #d4af37, #f5e27a, #c9972a);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --border-color: rgba(212, 175, 55, 0.2);
+            --border-hover: rgba(212, 175, 55, 0.5);
+            --input-bg: rgba(10, 14, 24, 0.7);
+            --success: #10b981;
+            --danger: #ef4444;
+            --shadow-gold: 0 0 30px rgba(212, 175, 55, 0.15);
+            --shadow-deep: 0 25px 60px rgba(0, 0, 0, 0.6);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            background-image:
+                radial-gradient(ellipse at 15% 10%, rgba(212, 175, 55, 0.07) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 90%, rgba(212, 175, 55, 0.07) 0%, transparent 50%);
+        }
+
+        #particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .particle {
+            position: absolute; width: 2px; height: 2px;
+            background: var(--gold-primary); border-radius: 50%; opacity: 0;
+            animation: floatParticle linear infinite;
+        }
+        @keyframes floatParticle {
+            0% { opacity: 0; transform: translateY(100vh) scale(0); }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.3; }
+            100% { opacity: 0; transform: translateY(-10vh) scale(1.5); }
+        }
+
+        .wrapper { position: relative; z-index: 1; width: 100%; max-width: 960px; }
+
+        /* HEADER */
+        .site-header { text-align: center; margin-bottom: 2.5rem; animation: fadeSlideDown 0.8s ease both; }
+        .logo-icon {
+            width: 72px; height: 72px; margin: 0 auto 1.2rem;
+            background: linear-gradient(135deg, #1a1500, #2d2400);
+            border: 2px solid rgba(212, 175, 55, 0.4); border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.2), inset 0 1px 0 rgba(212, 175, 55, 0.1);
+        }
+        .site-header h1 {
+            font-size: 2.4rem; font-weight: 900;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .site-header p { color: var(--text-muted); font-size: 0.95rem; margin-top: 0.4rem; }
+        .divider { width: 80px; height: 2px; background: var(--gold-gradient-2); margin: 1rem auto; border-radius: 2px; }
+
+        /* STEPS NAV */
+        .steps-nav {
+            display: flex; justify-content: center; align-items: center;
+            margin-bottom: 2.5rem; animation: fadeSlideDown 0.9s ease both;
+        }
+        .step-item { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; position: relative; }
+        .step-item:not(:last-child)::after {
+            content: ''; position: absolute; top: 16px; left: -40px;
+            width: 80px; height: 2px; background: var(--border-color); transition: background 0.4s;
+        }
+        .step-item.completed:not(:last-child)::after,
+        .step-item.active:not(:last-child)::after { background: var(--gold-gradient-2); }
+        .step-circle {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 2px solid var(--border-color);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 700; color: var(--text-dim);
+            background: var(--card-inner); transition: all 0.3s; position: relative; z-index: 1;
+        }
+        .step-item.active .step-circle {
+            border-color: var(--gold-primary); color: var(--gold-primary);
+            box-shadow: 0 0 12px rgba(212,175,55,0.4); background: rgba(212,175,55,0.08);
+        }
+        .step-item.completed .step-circle { border-color: var(--gold-primary); background: var(--gold-primary); color: #000; }
+        .step-label { font-size: 0.72rem; color: var(--text-dim); white-space: nowrap; }
+        .step-item.active .step-label { color: var(--gold-light); }
+
+        /* CARD */
+        .card {
+            background: var(--card-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border-color); border-radius: var(--radius-lg);
+            padding: 2.5rem; box-shadow: var(--shadow-deep), var(--shadow-gold);
+            position: relative; overflow: hidden; animation: fadeSlideUp 0.8s ease both;
+        }
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent);
+        }
+        .card-section { display: none; }
+        .card-section.active { display: block; animation: sectionFadeIn 0.4s ease both; }
+        @keyframes sectionFadeIn {
+            from { opacity: 0; transform: translateX(-16px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* SECTION TITLE */
+        .section-title { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.8rem; }
+        .section-icon {
+            width: 42px; height: 42px; border-radius: var(--radius-sm);
+            background: rgba(212,175,55,0.1); border: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; flex-shrink: 0;
+        }
+        .section-title h2 { font-size: 1.2rem; font-weight: 700; color: var(--gold-light); }
+        .section-title p { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* GRIDS */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        .col-span-2 { grid-column: span 2; }
+        @media (max-width: 640px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .col-span-2 { grid-column: span 1; }
+        }
+
+        /* FORM */
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--gold-light); display: flex; align-items: center; gap: 0.4rem; }
+        .required { color: var(--gold-primary); }
+
+        .input-style, .select-style, .textarea-style {
+            width: 100%; padding: 0.85rem 1rem;
+            background: var(--input-bg); border: 1px solid var(--border-color);
+            border-radius: var(--radius-md); color: var(--text-main);
+            font-size: 0.95rem; font-family: 'Cairo', sans-serif;
+            transition: all 0.3s; outline: none; -webkit-appearance: none;
+        }
+        .input-style:focus, .select-style:focus, .textarea-style:focus {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 3px rgba(212,175,55,0.1), 0 0 15px rgba(212,175,55,0.2);
+        }
+        .input-style::placeholder, .textarea-style::placeholder { color: var(--text-dim); }
+
+        .input-wrapper { position: relative; }
+        .input-suffix {
+            position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+            color: var(--gold-primary); font-size: 0.85rem; font-weight: 600; pointer-events: none;
+        }
+        .input-wrapper .input-style { padding-left: 2.5rem; }
+
+        .select-style {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23d4af37' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: 1rem center; padding-left: 2.5rem;
+        }
+        .select-style option { background: #0f1117; color: var(--text-main); }
+        .textarea-style { resize: vertical; min-height: 100px; }
+
+        /* RANGE */
+        .range-value-display {
+            position: absolute; top: -28px; left: 50%; transform: translateX(-50%);
+            background: var(--gold-primary); color: #000; font-size: 0.75rem; font-weight: 700;
+            padding: 2px 8px; border-radius: 6px; white-space: nowrap; pointer-events: none;
+        }
+        .range-value-display::after {
+            content: ''; position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+            border-left: 4px solid transparent; border-right: 4px solid transparent;
+            border-top: 4px solid var(--gold-primary);
+        }
+        input[type="range"] {
+            -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px;
+            background: rgba(255,255,255,0.1); outline: none; cursor: pointer; margin-top: 0.5rem;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+            background: var(--gold-gradient-2); cursor: pointer;
+            border: 3px solid var(--bg-primary); box-shadow: 0 0 8px rgba(212,175,55,0.5);
+            transition: transform 0.2s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        .range-labels { display: flex; justify-content: space-between; margin-top: 0.4rem; font-size: 0.72rem; color: var(--text-dim); }
+
+        /* OPTION CARDS */
+        .option-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 0.75rem; }
+        .option-card { display: none; }
+        .option-card + label {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 0.4rem; padding: 1rem 0.5rem; border-radius: var(--radius-md);
+            border: 1.5px solid var(--border-color); background: var(--card-inner);
+            cursor: pointer; text-align: center; transition: all 0.25s;
+            font-size: 0.82rem; color: var(--text-muted);
+        }
+        .option-card + label .oc-icon { font-size: 1.6rem; display: block; }
+        .option-card + label:hover {
+            border-color: var(--gold-primary); color: var(--gold-light);
+            transform: translateY(-2px); box-shadow: 0 4px 16px rgba(212,175,55,0.1);
+        }
+        .option-card:checked + label {
+            border-color: var(--gold-primary); background: rgba(212,175,55,0.08);
+            color: var(--gold-light); box-shadow: 0 0 0 1px rgba(212,175,55,0.3), 0 4px 16px rgba(212,175,55,0.15);
+        }
+
+        /* TOGGLE LIST */
+        .toggle-list { display: flex; flex-direction: column; gap: 0.6rem; }
+        .toggle-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.9rem 1.1rem; border-radius: var(--radius-md);
+            border: 1px solid var(--border-color); background: var(--card-inner);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .toggle-item:hover { border-color: var(--border-hover); background: rgba(212,175,55,0.03); }
+        .toggle-item.active { border-color: var(--gold-primary); background: rgba(212,175,55,0.06); }
+        .toggle-info { display: flex; align-items: center; gap: 0.75rem; }
+        .toggle-emoji { font-size: 1.2rem; width: 32px; text-align: center; }
+        .toggle-name { font-size: 0.88rem; font-weight: 600; color: var(--text-main); }
+        .toggle-price { font-size: 0.78rem; color: var(--text-muted); margin-top: 1px; }
+        .toggle-switch {
+            width: 42px; height: 24px; border-radius: 12px;
+            background: rgba(255,255,255,0.08); position: relative; transition: background 0.3s; flex-shrink: 0;
+        }
+        .toggle-switch::after {
+            content: ''; position: absolute; top: 3px; right: 3px;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: var(--text-dim); transition: all 0.3s;
+        }
+        .toggle-item.active .toggle-switch { background: var(--gold-primary); }
+        .toggle-item.active .toggle-switch::after { right: auto; left: 3px; background: #000; }
+
+        /* DISCOUNT TAGS */
+        .discount-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .discount-tag {
+            padding: 0.4rem 0.9rem; border-radius: 20px; border: 1.5px solid var(--border-color);
+            font-size: 0.8rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s; background: var(--card-inner);
+        }
+        .discount-tag.selected, .discount-tag:hover {
+            border-color: var(--gold-primary); color: var(--gold-primary); background: rgba(212,175,55,0.08);
+        }
+
+        /* NAV BUTTONS */
+        .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; gap: 1rem; }
+        .btn {
+            padding: 0.85rem 2rem; border-radius: var(--radius-md);
+            font-family: 'Cairo', sans-serif; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; transition: all 0.3s; border: none;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-ghost { background: transparent; border: 1.5px solid var(--border-color); color: var(--text-muted); }
+        .btn-ghost:hover { border-color: var(--gold-primary); color: var(--gold-light); }
+        .btn-primary { background: var(--gold-gradient-2); color: #000; box-shadow: 0 4px 20px rgba(212,175,55,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212,175,55,0.45); }
+        .btn-primary:active { transform: translateY(0); }
+
+        /* PROGRESS BAR */
+        .progress-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-bottom: 2rem; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--gold-gradient-2); border-radius: 2px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+        /* RESULTS */
+        @keyframes resultReveal { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+        .result-section { animation: resultReveal 0.6s ease both; }
+        .result-hero {
+            text-align: center; padding: 2rem; border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, rgba(212,175,55,0.08), rgba(170,119,28,0.04));
+            border: 1px solid rgba(212,175,55,0.25); margin-bottom: 2rem;
+            position: relative; overflow: hidden;
+        }
+        .result-hero::before {
+            content: ''; position: absolute; top: -50%; left: 50%; transform: translateX(-50%);
+            width: 200%; height: 200%;
+            background: radial-gradient(ellipse, rgba(212,175,55,0.06) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .result-label { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .result-price {
+            font-size: 4rem; font-weight: 900;
+            background: var(--gold-gradient); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text;
+            line-height: 1.1; letter-spacing: -1px;
+        }
+        .result-currency { font-size: 1.8rem; font-weight: 700; }
+        .result-tagline { margin-top: 0.75rem; font-size: 0.85rem; color: var(--text-muted); }
+
+        .result-breakdown { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .breakdown-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.8rem 1.1rem; border-radius: var(--radius-sm);
+            background: var(--card-inner); border: 1px solid var(--border-color); font-size: 0.88rem;
+        }
+        .breakdown-item .item-name { color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; }
+        .breakdown-item .item-value { font-weight: 700; color: var(--text-main); }
+        .breakdown-item .item-value.negative { color: var(--success); }
+
+        .breakdown-total {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 1.1rem; border-radius: var(--radius-sm);
+            background: rgba(212,175,55,0.08); border: 1.5px solid rgba(212,175,55,0.3);
+            font-size: 1rem; font-weight: 800;
+        }
+        .breakdown-total .total-label { color: var(--gold-light); }
+        .breakdown-total .total-value {
+            background: var(--gold-gradient); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text; font-size: 1.2rem;
+        }
+
+        .quote-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+        .btn-action {
+            padding: 0.85rem 1rem; border-radius: var(--radius-md);
+            border: 1.5px solid var(--border-color); background: var(--card-inner);
+            color: var(--text-main); font-family: 'Cairo', sans-serif;
+            font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.25s;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        }
+        .btn-action:hover { border-color: var(--gold-primary); color: var(--gold-light); transform: translateY(-2px); }
+        .btn-action.gold { background: var(--gold-gradient-2); border-color: transparent; color: #000; }
+        .btn-action.gold:hover { box-shadow: 0 6px 20px rgba(212,175,55,0.35); color: #000; }
+
+        .notice {
+            padding: 0.85rem 1.1rem; border-radius: var(--radius-sm);
+            background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.2);
+            font-size: 0.82rem; color: var(--gold-light);
+            display: flex; align-items: flex-start; gap: 0.6rem; margin-top: 1rem;
+        }
+
+        @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .confetti-piece {
+            position: fixed; width: 8px; height: 8px; border-radius: 2px;
+            top: -10px; pointer-events: none; z-index: 999; animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        .site-footer { text-align: center; margin-top: 2rem; color: var(--text-dim); font-size: 0.8rem; }
+
+        @media print {
+            body { background: white; color: black; }
+            #particles, .nav-buttons, .quote-actions, .site-footer { display: none; }
+            .card { box-shadow: none; border: 1px solid #ccc; }
+        }
+
+        @media (max-width: 640px) {
+            .site-header h1 { font-size: 1.7rem; }
+            .card { padding: 1.5rem; }
+            .result-price { font-size: 2.8rem; }
+            .quote-actions { grid-template-columns: 1fr; }
+            .step-item:not(:last-child)::after { width: 50px; left: -25px; }
+        }
+
+        .tooltip-wrap { position: relative; display: inline-flex; }
+        .tooltip-icon {
+            width: 18px; height: 18px; border-radius: 50%;
+            background: rgba(212,175,55,0.15); color: var(--gold-primary);
+            font-size: 0.7rem; font-weight: 800;
+            display: inline-flex; align-items: center; justify-content: center; cursor: help;
+        }
+        .tooltip-box {
+            display: none; position: absolute; bottom: calc(100% + 6px); right: 50%; transform: translateX(50%);
+            background: #1a2035; border: 1px solid var(--border-color); border-radius: 10px;
+            padding: 0.6rem 0.9rem; font-size: 0.75rem; color: var(--text-muted);
+            white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 10;
+        }
+        .tooltip-wrap:hover .tooltip-box { display: block; }
+    </style>
+</head>
+<body>
+
+<div id="particles"></div>
+
+<div class="wrapper">
+
+    <header class="site-header">
+        <div class="logo-icon">✦</div>
+        <h1>حاسبة تسعير الخدمات الفاخرة</h1>
+        <div class="divider"></div>
+        <p>احسب سعر خدماتك باحترافية وابهر عميلك بعرض سعر أنيق</p>
+    </header>
+
+    <nav class="steps-nav" id="stepsNav">
+        <div class="step-item active" data-step="1">
+            <div class="step-circle">١</div>
+            <span class="step-label">معلوماتك</span>
+        </div>
+        <div class="step-item" data-step="2">
+            <div class="step-circle">٢</div>
+            <span class="step-label">نوع الخدمة</span>
+        </div>
+        <div class="step-item" data-step="3">
+            <div class="step-circle">٣</div>
+            <span class="step-label">الإضافات</span>
+        </div>
+        <div class="step-item" data-step="4">
+            <div class="step-circle">٤</div>
+            <span class="step-label">التسعير</span>
+        </div>
+        <div class="step-item" data-step="5">
+            <div class="step-circle">✓</div>
+            <span class="step-label">عرض السعر</span>
+        </div>
+    </nav>
+
+    <main class="card">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+        </div>
+
+        <!-- STEP 1 -->
+        <section class="card-section active" id="step1">
+            <div class="section-title">
+                <div class="section-icon">👤</div>
+                <div>
+                    <h2>معلومات العميل والمشروع</h2>
+                    <p>أدخل بيانات العميل لتخصيص عرض السعر</p>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="clientName">اسم العميل <span class="required">*</span></label>
+                    <input type="text" id="clientName" class="input-style" placeholder="مثال: شركة النخبة">
+                </div>
+                <div class="form-group">
+                    <label for="providerName">اسم مزود الخدمة <span class="required">*</span></label>
+                    <input type="text" id="providerName" class="input-style" placeholder="اسمك أو شركتك">
+                </div>
+                <div class="form-group">
+                    <label for="projectName">اسم المشروع</label>
+                    <input type="text" id="projectName" class="input-style" placeholder="مثال: تصميم الهوية البصرية">
+                </div>
+                <div class="form-group">
+                    <label for="currency">العملة</label>
+                    <select id="currency" class="select-style">
+                        <option value="ريال">ريال سعودي (SAR)</option>
+                        <option value="درهم">درهم إماراتي (AED)</option>
+                        <option value="دينار">دينار كويتي (KWD)</option>
+                        <option value="دولار">دولار أمريكي (USD)</option>
+                        <option value="يورو">يورو (EUR)</option>
+                        <option value="جنيه">جنيه مصري (EGP)</option>
+                    </select>
+                </div>
+                <div class="form-group col-span-2">
+                    <label for="projectDesc">وصف مختصر للمشروع</label>
+                    <textarea id="projectDesc" class="textarea-style" placeholder="اشرح باختصار ما تقدمه من خدمات في هذا المشروع..."></textarea>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <div></div>
+                <button class="btn btn-primary" id="step1Next" onclick="goToStep(2)">التالي ←</button>
+            </div>
+        </section>
+
+        <!-- STEP 2 -->
+        <section class="card-section" id="step2">
+            <div class="section-title">
+                <div class="section-icon">🎨</div>
+                <div>
+                    <h2>نوع الخدمة الرئيسية</h2>
+                    <p>اختر تصنيف خدمتك لضبط نموذج التسعير</p>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:1.5rem">
+                <label>تصنيف الخدمة <span class="required">*</span></label>
+                <div class="option-cards">
+                    <input type="radio" name="serviceType" id="st-design" class="option-card" value="design" checked>
+                    <label for="st-design"><span class="oc-icon">🎨</span>تصميم جرافيك</label>
+                    <input type="radio" name="serviceType" id="st-web" class="option-card" value="web">
+                    <label for="st-web"><span class="oc-icon">💻</span>تطوير ويب</label>
+                    <input type="radio" name="serviceType" id="st-social" class="option-card" value="social">
+                    <label for="st-social"><span class="oc-icon">📱</span>سوشيال ميديا</label>
+                    <input type="radio" name="serviceType" id="st-photo" class="option-card" value="photo">
+                    <label for="st-photo"><span class="oc-icon">📸</span>تصوير</label>
+                    <input type="radio" name="serviceType" id="st-video" class="option-card" value="video">
+                    <label for="st-video"><span class="oc-icon">🎬</span>مونتاج فيديو</label>
+                    <input type="radio" name="serviceType" id="st-consult" class="option-card" value="consult">
+                    <label for="st-consult"><span class="oc-icon">💼</span>استشارات</label>
+                    <input type="radio" name="serviceType" id="st-content" class="option-card" value="content">
+                    <label for="st-content"><span class="oc-icon">✍️</span>كتابة محتوى</label>
+                    <input type="radio" name="serviceType" id="st-motion" class="option-card" value="motion">
+                    <label for="st-motion"><span class="oc-icon">✨</span>موشن جرافيك</label>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="deliveryTime">مدة التسليم</label>
+                    <select id="deliveryTime" class="select-style">
+                        <option value="0">عادي (بدون إضافة)</option>
+                        <option value="0.15">سريع – خلال أسبوع (+15%)</option>
+                        <option value="0.30">مستعجل – خلال 3 أيام (+30%)</option>
+                        <option value="0.50">عاجل جداً – خلال 24 ساعة (+50%)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="complexity">مستوى التعقيد</label>
+                    <select id="complexity" class="select-style">
+                        <option value="1">بسيط</option>
+                        <option value="1.3" selected>متوسط</option>
+                        <option value="1.7">متقدم</option>
+                        <option value="2.2">متخصص جداً</option>
+                    </select>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-ghost" onclick="goToStep(1)">← رجوع</button>
+                <button class="btn btn-primary" onclick="goToStep(3)">التالي ←</button>
+            </div>
+        </section>
+
+        <!-- STEP 3 -->
+        <section class="card-section" id="step3">
+            <div class="section-title">
+                <div class="section-icon">⚡</div>
+                <div>
+                    <h2>خدمات إضافية</h2>
+                    <p>أضف الخدمات الإضافية لتكتمل التكلفة</p>
+                </div>
+            </div>
+            <div class="toggle-list" id="addonsList">
+                <div class="toggle-item" onclick="toggleAddon(this)" data-price="500" data-name="تعديلات غير محدودة">
+                    <div class="toggle-info">
+                        <span class="toggle-emoji">♾️</span>
+                        <div>
+                            <div class="toggle-name">تعديلات غير محدودة</div>
+                            <div class="toggle-price">+ 500 <span class="addon-currency">ريال</span></div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch"></div>
+                </div>
+                <div class="toggle-item" onclick="toggleAddon(this)" data-price="800" data-name="ملفات المصدر">
+                    <div class="toggle-info">
+                        <span class="toggle-emoji">📁</span>
+                        <div>
+                            <div class="toggle-name">تسليم ملفات المصدر</div>
+                            <div class="toggle-price">+ 800 <span class="addon-currency">ريال</span></div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch"></div>
+                </div>
+                <div class="toggle-item" onclick="toggleAddon(this)" data-price="1200" data-name="حقوق الملكية الكاملة">
+                    <div class="toggle-info">
+                        <span class="toggle-emoji">©️</span>
+                        <div>
+                            <div class="toggle-name">حقوق الملكية الكاملة</div>
+                            <div class="toggle-price">+ 1,200 <span class="addon-currency">ريال</span></div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch"></div>
+                </div>
+                <div class="toggle-item" onclick="toggleAddon(this)" data-price="600" data-name="تقرير تفصيلي">
+                    <div class="toggle-info">
+                        <span class="toggle-emoji">📊</span>
+                        <div>
+                            <div class="toggle-name">تقرير تفصيلي للمشروع</div>
+                            <div class="toggle-price">+ 600 <span class="addon-currency">ريال</span></div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch"></div>
+                </div>
+                <div class="toggle-item" onclick="toggleAddon(this)" data-price="400" data-name="دعم فني">
+                    <div class="toggle-info">
+                        <span class="toggle-emoji">🛠️</span>
+                        <div>
+                            <div class="toggle-name">دعم فني لمدة شهر</div>
+                            <div class="toggle-price">+ 400 <span class="addon-currency">ريال</span></div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch"></div>
+                </div>
+                <div class="toggle-item" onclick="toggleAddon(this)" data-price="350" data-name="تدريب على الاستخدام">
+                    <div class="toggle-info">
+                        <span class="toggle-emoji">🎓</span>
+                        <div>
+                            <div class="toggle-name">جلسة تدريبية على الاستخدام</div>
+                            <div class="toggle-price">+ 350 <span class="addon-currency">ريال</span></div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch"></div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-ghost" onclick="goToStep(2)">← رجوع</button>
+                <button class="btn btn-primary" onclick="goToStep(4)">التالي ←</button>
+            </div>
+        </section>
+
+        <!-- STEP 4 -->
+        <section class="card-section" id="step4">
+            <div class="section-title">
+                <div class="section-icon">💰</div>
+                <div>
+                    <h2>ضبط التسعير</h2>
+                    <p>حدد سعرك الأساسي ونسبة الخصم</p>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="basePrice">السعر الأساسي <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input type="number" id="basePrice" class="input-style" placeholder="0" min="0" value="2000">
+                        <span class="input-suffix" id="basePriceSuffix">ريال</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="vatRate">ضريبة القيمة المضافة</label>
+                    <select id="vatRate" class="select-style">
+                        <option value="0">بدون ضريبة</option>
+                        <option value="0.05">5%</option>
+                        <option value="0.10">10%</option>
+                        <option value="0.15" selected>15%</option>
+                        <option value="0.20">20%</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:2rem">
+                <label>
+                    نسبة الخصم
+                    <div class="tooltip-wrap">
+                        <span class="tooltip-icon">?</span>
+                        <div class="tooltip-box">يُطبَّق الخصم على السعر الإجمالي قبل الضريبة</div>
+                    </div>
+                </label>
+                <div style="position:relative;padding-top:1.5rem">
+                    <div class="range-value-display" id="discountDisplay">0%</div>
+                    <input type="range" id="discountRange" min="0" max="50" value="0" oninput="updateDiscount(this.value)">
+                    <div class="range-labels"><span>0%</span><span>25%</span><span>50%</span></div>
+                </div>
+                <div class="discount-tags" style="margin-top:1rem">
+                    <span class="discount-tag selected" onclick="setDiscount(0)">بدون خصم</span>
+                    <span class="discount-tag" onclick="setDiscount(5)">5%</span>
+                    <span class="discount-tag" onclick="setDiscount(10)">10%</span>
+                    <span class="discount-tag" onclick="setDiscount(15)">15%</span>
+                    <span class="discount-tag" onclick="setDiscount(20)">20%</span>
+                    <span class="discount-tag" onclick="setDiscount(25)">25%</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="paymentTerms">شروط الدفع</label>
+                <select id="paymentTerms" class="select-style">
+                    <option value="full">دفعة واحدة عند التسليم</option>
+                    <option value="half" selected>50% مقدماً – 50% عند التسليم</option>
+                    <option value="third">33% مقدماً – 33% منتصف – 33% تسليم</option>
+                    <option value="custom">حسب الاتفاق</option>
+                </select>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-ghost" onclick="goToStep(3)">← رجوع</button>
+                <button class="btn btn-primary" onclick="calculateAndShow()">احسب الآن ✦</button>
+            </div>
+        </section>
+
+        <!-- STEP 5 -->
+        <section class="card-section" id="step5">
+            <div class="result-section">
+                <div class="result-hero">
+                    <div class="result-label">إجمالي عرض السعر</div>
+                    <div class="result-price">
+                        <span id="finalAmount">0</span>
+                        <span class="result-currency" id="finalCurrencySymbol">ريال</span>
+                    </div>
+                    <div class="result-tagline" id="resultTagline"></div>
+                </div>
+                <div style="margin-bottom:1rem;font-size:0.82rem;color:var(--text-dim)">تفصيل الحساب</div>
+                <div class="result-breakdown" id="breakdownList"></div>
+                <div class="breakdown-total">
+                    <span class="total-label">✦ الإجمالي النهائي</span>
+                    <span class="total-value" id="totalFinal">0</span>
+                </div>
+                <div class="notice">
+                    <span>📋</span>
+                    <span id="paymentNote">يُرجى مراجعة شروط الدفع المتفق عليها مع العميل قبل إرسال العرض.</span>
+                </div>
+                <div class="quote-actions">
+                    <button class="btn-action" onclick="copyQuote()" id="copyBtn">📋 نسخ العرض</button>
+                    <button class="btn-action" onclick="window.print()">🖨️ طباعة</button>
+                    <button class="btn-action" onclick="resetForm()">🔄 حساب جديد</button>
+                    <button class="btn-action gold" onclick="shareQuote()">📤 مشاركة</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <p>✦ صُمِّم بأناقة — حاسبة تسعير الخدمات الفاخرة</p>
+    </footer>
+</div>
+
+<script>
+// PARTICLES
+const pc = document.getElementById('particles');
+for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (8 + Math.random() * 15) + 's';
+    p.style.animationDelay = (Math.random() * 15) + 's';
+    const sz = (1 + Math.random() * 2) + 'px';
+    p.style.width = p.style.height = sz;
+    pc.appendChild(p);
+}
+
+let currentStep = 1;
+
+function getCurrency() {
+    const sel = document.getElementById('currency');
+    return sel.value;
+}
+
+function goToStep(step) {
+    if (step > currentStep && !validateCurrentStep()) return;
+    document.getElementById('step' + currentStep).classList.remove('active');
+    currentStep = step;
+    document.getElementById('step' + currentStep).classList.add('active');
+
+    document.querySelectorAll('.step-item').forEach((el, idx) => {
+        el.classList.remove('active', 'completed');
+        if (idx + 1 < currentStep) el.classList.add('completed');
+        if (idx + 1 === currentStep) el.classList.add('active');
+    });
+
+    const pct = ((currentStep - 1) / 4) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (step === 3) updateAddonCurrency();
+    if (step === 4) document.getElementById('basePriceSuffix').textContent = getCurrency();
+}
+
+function validateCurrentStep() {
+    if (currentStep === 1) {
+        const c = document.getElementById('clientName').value.trim();
+        const p = document.getElementById('providerName').value.trim();
+        if (!c) { highlight('clientName'); return false; }
+        if (!p) { highlight('providerName'); return false; }
+    }
+    if (currentStep === 4) {
+        const b = parseFloat(document.getElementById('basePrice').value);
+        if (!b || b <= 0) { highlight('basePrice'); return false; }
+    }
+    return true;
+}
+
+function highlight(id) {
+    const el = document.getElementById(id);
+    el.style.borderColor = '#ef4444';
+    el.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.15)';
+    el.focus();
+    setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 2500);
+}
+
+function updateAddonCurrency() {
+    const cur = getCurrency();
+    document.querySelectorAll('.addon-currency').forEach(el => el.textContent = cur);
+}
+
+function toggleAddon(el) { el.classList.toggle('active'); }
+
+function updateDiscount(val) {
+    val = parseInt(val);
+    document.getElementById('discountDisplay').textContent = val + '%';
+    document.querySelectorAll('.discount-tag').forEach(t => {
+        const isNone = t.textContent === 'بدون خصم' && val === 0;
+        const isMatch = !isNaN(parseInt(t.textContent)) && parseInt(t.textContent) === val;
+        t.classList.toggle('selected', isNone || isMatch);
+    });
+}
+
+function setDiscount(val) {
+    document.getElementById('discountRange').value = val;
+    updateDiscount(val);
+}
+
+function fmt(n) {
+    return n.toLocaleString('ar-SA', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+
+function animateCount(elId, target, duration) {
+    const el = document.getElementById(elId);
+    const startTime = performance.now();
+    const easeOut = t => 1 - Math.pow(1 - t, 3);
+    function step(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        el.textContent = fmt(target * easeOut(progress));
+        if (progress < 1) requestAnimationFrame(step);
+        else el.textContent = fmt(target);
+    }
+    requestAnimationFrame(step);
+}
+
+function calculateAndShow() {
+    if (!validateCurrentStep()) return;
+
+    const clientName = document.getElementById('clientName').value.trim();
+    const providerName = document.getElementById('providerName').value.trim();
+    const projectName = document.getElementById('projectName').value.trim() || 'مشروع مخصص';
+    const currency = getCurrency();
+    const basePrice = parseFloat(document.getElementById('basePrice').value) || 0;
+    const complexity = parseFloat(document.getElementById('complexity').value);
+    const urgency = parseFloat(document.getElementById('deliveryTime').value);
+    const vat = parseFloat(document.getElementById('vatRate').value);
+    const discount = parseInt(document.getElementById('discountRange').value) / 100;
+    const paymentTerms = document.getElementById('paymentTerms').value;
+
+    const serviceLabels = {
+        design:'تصميم جرافيك', web:'تطوير ويب', social:'إدارة سوشيال ميديا',
+        photo:'تصوير احترافي', video:'مونتاج فيديو', consult:'استشارات متخصصة',
+        content:'كتابة محتوى', motion:'موشن جرافيك'
+    };
+    const serviceType = document.querySelector('input[name="serviceType"]:checked').value;
+
+    let addonTotal = 0;
+    const activeAddons = [];
+    document.querySelectorAll('.toggle-item.active').forEach(el => {
+        const price = parseFloat(el.dataset.price);
+        addonTotal += price;
+        activeAddons.push({ name: el.dataset.name, price });
+    });
+
+    const adjustedBase = basePrice * complexity;
+    const urgencyAdd = adjustedBase * urgency;
+    const subtotal = adjustedBase + urgencyAdd + addonTotal;
+    const discountAmt = subtotal * discount;
+    const afterDiscount = subtotal - discountAmt;
+    const vatAmt = afterDiscount * vat;
+    const finalTotal = afterDiscount + vatAmt;
+
+    const paymentNotes = {
+        full: 'يُدفع المبلغ الكامل عند التسليم.',
+        half: 'الدفعة الأولى: ' + fmt(finalTotal * 0.5) + ' ' + currency + ' مقدماً — الدفعة الثانية: ' + fmt(finalTotal * 0.5) + ' ' + currency + ' عند التسليم.',
+        third: 'ثلاث دفعات: ' + fmt(finalTotal / 3) + ' ' + currency + ' مقدماً، ' + fmt(finalTotal / 3) + ' ' + currency + ' منتصف المشروع، ' + fmt(finalTotal / 3) + ' ' + currency + ' عند التسليم.',
+        custom: 'شروط الدفع حسب الاتفاق المسبق مع العميل.'
+    };
+
+    const breakdown = [];
+    breakdown.push({ name: 'السعر الأساسي — ' + serviceLabels[serviceType], value: fmt(basePrice), icon: '🔹' });
+    if (complexity !== 1) {
+        const labels = { '1.3': 'متوسط', '1.7': 'متقدم', '2.2': 'متخصص جداً' };
+        breakdown.push({ name: 'مضاعف التعقيد (' + (labels[String(complexity)] || '') + ')', value: '+ ' + fmt(adjustedBase - basePrice), icon: '⚙️' });
+    }
+    if (urgency > 0) {
+        breakdown.push({ name: 'رسوم الاستعجال (+' + Math.round(urgency * 100) + '%)', value: '+ ' + fmt(urgencyAdd), icon: '⚡' });
+    }
+    activeAddons.forEach(a => breakdown.push({ name: a.name, value: '+ ' + fmt(a.price), icon: '➕' }));
+    breakdown.push({ name: 'المجموع الفرعي', value: fmt(subtotal), icon: '📝', divider: true });
+    if (discount > 0) breakdown.push({ name: 'خصم ' + Math.round(discount * 100) + '%', value: '- ' + fmt(discountAmt), icon: '🎁', negative: true });
+    if (vat > 0) breakdown.push({ name: 'ضريبة القيمة المضافة (' + Math.round(vat * 100) + '%)', value: '+ ' + fmt(vatAmt), icon: '🏦' });
+
+    document.getElementById('breakdownList').innerHTML = breakdown.map(item =>
+        '<div class="breakdown-item" style="' + (item.divider ? 'border-color:rgba(212,175,55,0.3);margin-top:0.3rem' : '') + '">' +
+        '<span class="item-name">' + item.icon + ' ' + item.name + '</span>' +
+        '<span class="item-value ' + (item.negative ? 'negative' : '') + '">' + item.value + ' ' + currency + '</span>' +
+        '</div>'
+    ).join('');
+
+    animateCount('finalAmount', finalTotal, 1000);
+    document.getElementById('finalCurrencySymbol').textContent = currency;
+    document.getElementById('totalFinal').textContent = fmt(finalTotal) + ' ' + currency;
+    document.getElementById('resultTagline').textContent = 'عرض سعر مُعدّ لـ "' + clientName + '" من "' + providerName + '" — ' + projectName;
+    document.getElementById('paymentNote').textContent = paymentNotes[paymentTerms];
+
+    window._quoteData = { clientName, providerName, projectName, currency, finalTotal, paymentNote: paymentNotes[paymentTerms], breakdown, serviceType: serviceLabels[serviceType] };
+
+    goToStep(5);
+    launchConfetti();
+}
+
+function launchConfetti() {
+    const colors = ['#d4af37', '#fcf6ba', '#b38728', '#fff', '#fbf5b7'];
+    for (let i = 0; i < 60; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti-piece';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+        c.style.animationDelay = Math.random() * 0.5 + 's';
+        const sz = (5 + Math.random() * 7) + 'px';
+        c.style.width = c.style.height = sz;
+        c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 4000);
+    }
+}
+
+function copyQuote() {
+    const q = window._quoteData;
+    if (!q) return;
+    const text = [
+        '✦ عرض سعر احترافي ✦',
+        '═══════════════════',
+        'العميل: ' + q.clientName,
+        'مزود الخدمة: ' + q.providerName,
+        'المشروع: ' + q.projectName,
+        'الخدمة: ' + q.serviceType,
+        '───────────────────',
+        ...q.breakdown.map(b => b.icon + ' ' + b.name + ': ' + b.value + ' ' + q.currency),
+        '═══════════════════',
+        '💰 الإجمالي النهائي: ' + fmt(q.finalTotal) + ' ' + q.currency,
+        '───────────────────',
+        '📋 الدفع: ' + q.paymentNote,
+        '✦ شكراً لثقتكم ✦'
+    ].join('\n');
+
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = '✅ تم النسخ!';
+        btn.style.borderColor = '#10b981';
+        btn.style.color = '#10b981';
+        setTimeout(() => { btn.textContent = '📋 نسخ العرض'; btn.style.borderColor = ''; btn.style.color = ''; }, 2500);
+    }).catch(() => alert('تعذّر النسخ، يرجى المحاولة يدوياً.'));
+}
+
+function shareQuote() {
+    const q = window._quoteData;
+    if (!q) return;
+    if (navigator.share) {
+        navigator.share({ title: 'عرض سعر احترافي', text: 'عرض سعر من ' + q.providerName + ' لـ ' + q.clientName + ' — الإجمالي: ' + fmt(q.finalTotal) + ' ' + q.currency });
+    } else { copyQuote(); }
+}
+
+function resetForm() {
+    document.getElementById('clientName').value = '';
+    document.getElementById('providerName').value = '';
+    document.getElementById('projectName').value = '';
+    document.getElementById('projectDesc').value = '';
+    document.getElementById('basePrice').value = '2000';
+    document.getElementById('discountRange').value = 0;
+    updateDiscount(0);
+    document.querySelectorAll('.toggle-item.active').forEach(el => el.classList.remove('active'));
+    document.getElementById('st-design').checked = true;
+    document.getElementById('deliveryTime').value = '0';
+    document.getElementById('complexity').value = '1.3';
+    document.getElementById('vatRate').value = '0.15';
+    document.getElementById('paymentTerms').value = 'half';
+    currentStep = 1;
+    goToStep(1);
+}
+
+document.getElementById('currency').addEventListener('change', () => {
+    updateAddonCurrency();
+    document.getElementById('basePriceSuffix').textContent = getCurrency();
+});
+
+updateDiscount(0);
+</script>
+</body>
+</html>
